@@ -1,6 +1,6 @@
 #
 # This file was generated based on the configuration script:
-#     /home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample.cfg
+#     /home/mdubuntu/Downloads/CC3200MOD-SDK/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample.cfg
 #
 # This makefile may be included in other makefiles that need to build
 # the libraries containing the compiled source files generated as
@@ -14,7 +14,7 @@
 #
 # The absolute path to the generated source directory (at the time the
 # sources were generated) is:
-#    /home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample/package/cfg/subscribe_publish_sample_pem4.src
+#    /home/mdubuntu/Downloads/CC3200MOD-SDK/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample/package/cfg/subscribe_publish_sample_pem4.src
 #
 GEN_SRC_DIR ?= package/cfg/subscribe_publish_sample_pem4.src
 

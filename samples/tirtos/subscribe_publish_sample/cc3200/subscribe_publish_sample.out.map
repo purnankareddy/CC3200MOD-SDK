@@ -1,7 +1,7 @@
 ******************************************************************************
                   TI ARM Linker Unix v5.2.5                    
 ******************************************************************************
->> Linked Tue Mar 28 11:27:19 2017
+>> Linked Tue Mar 28 12:12:39 2017
 
 OUTPUT FILE NAME:   <subscribe_publish_sample.out>
 ENTRY POINT SYMBOL: "_c_int00"  address: 20017d0d
@@ -1316,8 +1316,8 @@ section   page    origin      length       input sections
 *          0    20004000    0000030c     
                   20004000    0000030c     subscribe_publish_sample_pem4.oem4 (.resetVecs)
 
-xdc.meta   0    00000000    00000166     COPY SECTION
-                  00000000    00000166     subscribe_publish_sample_pem4.oem4 (xdc.meta)
+xdc.meta   0    00000000    0000012e     COPY SECTION
+                  00000000    0000012e     subscribe_publish_sample_pem4.oem4 (xdc.meta)
 
 xdc.noload 
 *          0    00000000    00000000     COPY SECTION
@@ -1831,11 +1831,11 @@ UNDEFED   SHT$$INIT_ARRAY$$Limit
 200289a8  _Zero                                                              
 00000000  __ASM__                                                            
 200265e0  __CIOBUF_                                                          
-000000df  __ISA__                                                            
-000000f2  __PLAT__                                                           
+000000a7  __ISA__                                                            
+000000ba  __PLAT__                                                           
 20029158  __STACK_END                                                        
 00000400  __STACK_SIZE                                                       
-00000119  __TARG__                                                           
+000000e1  __TARG__                                                           
 200296a0  __TI_CINIT_Base                                                    
 200296b0  __TI_CINIT_Limit                                                   
 2002968c  __TI_Handler_Table_Base                                            
@@ -1858,7 +1858,7 @@ UNDEFED   SHT$$INIT_ARRAY$$Limit
 20015a51  __TI_writemsg                                                      
 200122d1  __TI_wrt_ok                                                        
 2001b885  __TI_zero_init                                                     
-0000013e  __TRDR__                                                           
+00000106  __TRDR__                                                           
 2001561d  __abort_execution                                                  
 20014259  __aeabi_cdcmpeq                                                    
 20014259  __aeabi_cdcmple                                                    
@@ -2739,10 +2739,10 @@ address   name
 00000000  __ASM__                                                            
 00000001  xdc_runtime_Startup__EXECFXN__C                                    
 00000001  xdc_runtime_Startup__RESETFXN__C                                   
-000000df  __ISA__                                                            
-000000f2  __PLAT__                                                           
-00000119  __TARG__                                                           
-0000013e  __TRDR__                                                           
+000000a7  __ISA__                                                            
+000000ba  __PLAT__                                                           
+000000e1  __TARG__                                                           
+00000106  __TRDR__                                                           
 00000400  __STACK_SIZE                                                       
 20004000  ti_sysbios_family_arm_m3_Hwi_resetVectors                          
 200050b1  __TI_printfi                                                       

@@ -16,7 +16,7 @@ echo $user >> .Install.log
 echo "--> Installing...\n" >> .Install.log
 sudo chmod -R 777 ./*
 
-echo "--> Installing requerments....." >> .Install.log
+echo "--> Installing requerments......." >> .Install.log
 sudo apt-get update >> .Install.log
 sudo apt-get install -y expect >> .Install.log
 sudo apt-get install -y mysql-client-core-5.7 >> .Install.log
