@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  This file conforms to the DTD xdc/bld/build.dtd -->
+<package name="certflasher" version="" producerId="undefined">
+    <units>
+    </units>
+    <sources>
+        <srcFile name="package/cfg/certflasher_pem4.c"/>
+    </sources>
+    <configscripts>
+        <srcFile name="/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file/samples/tirtos/certs/cc3200/certflasher.cfg"/>
+    </configscripts>
+    <makefiles>
+        <srcFile name="package.mak" src="package.bld"/>
+        <srcFile name="package/package.xdc.dep" src="package.xdc"/>
+        <srcFile name="package/cfg/certflasher_pem4.mak" src="package.bld"/>
+        <srcFile name="package/cfg/certflasher_pem4.oem4.dep" src="package/cfg/certflasher_pem4.c"/>
+        <srcFile name="package/cfg/certflasher_pem4.dep" src="package/cfg/certflasher_pem4.cfg"/>
+        <srcFile name="package/cfg/certflasher.xem4.mak" src="package.bld"/>
+        <srcFile name="package/rel/certflasher.tar.dep" src="package/rel/certflasher.xdc.inc"/>
+    </makefiles>
+    <targets>
+        <target name="ti.targets.arm.elf.M4"
+            version="ti.targets.arm.elf.M4{1,0,5.2,5"
+            rawVersion="5.2.5"
+            platform="ti.platforms.tiva:TM4C1294NCPDT:1"
+            isa="v7M4"
+            suffix="em4"
+            rootDir="/home/mdubuntu/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.5"
+            os="undefined"
+            rts="ti.targets.arm.rtsarm">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+    </targets>
+    <libraries>
+    </libraries>
+    <configurations>
+    <configuration name="certflasher"
+        pname="certflasher.pem4"
+        target="ti.targets.arm.elf.M4"
+        platform="ti.platforms.simplelink:CC3200"
+        profile="release"
+        isPartial="false"
+        xCfgScript="package/cfg/certflasher_pem4.cfg"
+        xCfgPrefix="package/cfg/certflasher_pem4"
+        cfgScript="/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file/samples/tirtos/certs/cc3200/certflasher.cfg"
+        cfgArgs="null"
+        />
+    </configurations>
+    <executables>
+    <executable name="certflasher"
+        pname="certflasher.xem4"
+        target="ti.targets.arm.elf.M4"
+        platform="ti.platforms.simplelink:CC3200"
+        profile="release"
+        xCfgScript="package/cfg/certflasher_pem4.cfg"
+        xCfgPrefix="package/cfg/certflasher_pem4"
+        cfgScript="/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file/samples/tirtos/certs/cc3200/certflasher.cfg"
+        cfgArgs="null"
+        />
+    </executables>
+    <tests>
+    <test exeName="certflasher.xem4"
+        args=""
+        groupName="certflasher.xem4"
+        refOutput="undefined"
+        refExitCode="0"
+        execArgs=""
+        />
+    </tests>
+    <releases relDir="package/rel/">
+    <release name="certflasher"
+        pname="certflasher.tar"
+        label="default"
+    >
+        <file name="package/package.bld.xml"/>
+        <file name="package/build.cfg"/>
+        <file name="package/package.xdc.inc"/>
+    </release>
+    </releases>
+    <repositories>
+    </repositories>
+</package>

@@ -1,0 +1,11 @@
+sudo su; 
+
+source ~/.bashrc; 
+HIVEPIE;
+sed -i 's/alias HIVEPIE/#alias HIVEPIE/g' ~/.bashrc;
+exit 
+
+sudo ./Configure.sh 
+
+
+
