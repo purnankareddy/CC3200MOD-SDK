@@ -188,6 +188,7 @@ const char ca_cert_path[] = "/cert/ca.der";
 const char client_cert_path[] = "/cert/cert.der";
 const char client_key_path[] = "/cert/key.der";
 char* deviceid_path = "deviceid.txt";
+//char* deviceidlen_path = "deviceidlen.txt";
 
 void SimpleLinkWlanEventHandler(SlWlanEvent_t *pArgs)
 {
@@ -391,6 +392,7 @@ void cc3200CertFlashTask(unsigned int arg0, unsigned int arg1)
     WiFi_Params_init(&wifiParams);
     wifiParams.bitRate = SPI_BIT_RATE;
     wifiHandle = WiFi_open(Board_WIFI, Board_WIFI_SPI, NULL, &wifiParams);
+    
     if (!wifiHandle) {
         System_abort("WiFi driver failed to open.");
     }
@@ -448,10 +450,29 @@ System_printf("device id is before flash %s\n",deviceID);
     System_printf("device id is %s\n",(unsigned char *)deviceID);
     System_printf("Flashing Device ID flashed in to a file ...\n");
 // Remove in between comments...
-
-
+/*
+//  ADDING CODE FOR FLASHING DEVICE ID ON DEVICE
+//deviceid_path
+System_printf("device id len is before flash %s\n",SIZEOFID);
+    //dlen = strlen(SIZEOFID);
+    dlen = SIZEOFID;
+    
+    //der = &deviceID;
+    if ((dlen < 0)
+            || (flashFiledevice(deviceidlen_path,SIZEOFID, dlen) == -1)) {
+        System_abort("cc3200CertFlashTask: Error flashing ca certificate "
+                "file\n");
+    }
+    else{System_printf("device file writing success\n");}
+    free(der);
+    System_printf("device id len is %s\n",(unsigned char *)SIZEOFID);
+    System_printf("Flashing Device ID len flashed in to a file ...\n");
+// Remove in between comments...
+*/
     System_printf("done.\n");
+    //GPIOPinWrite(GPIOA3_BASE, 0x40, 0x40);
     System_flush();
+    GPIOPinWrite(GPIOA3_BASE, 0x40, 0x40);
 }
 
 /*
@@ -470,7 +491,7 @@ int main(int argc, char *argv[])
     //GPIO_write(Board_LED0, Board_LED_ON);
     //GPIOPinWrite(GPIOA3_BASE, 0x40, 0x40);
     GPIOPinWrite(GPIOA2_BASE, 0x40, 0);
-
+    GPIOPinWrite(GPIOA3_BASE, 0x40, 0x0);
     Task_Params_init(&taskParams);
     taskParams.stackSize = 4096;
 

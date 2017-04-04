@@ -1628,7 +1628,7 @@ __FAR__ const xdc_SizeT ti_sysbios_knl_Task_Module_State_terminatedQ__O = offset
  *  Define absolute path prefix for this executable's
  *  configuration generated files.
  */
-xdc__META(__ASM__, "@(#)__ASM__ = /home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file/samples/tirtos/certs/cc3200/certflasher/package/cfg/certflasher_pem4");
+xdc__META(__ASM__, "@(#)__ASM__ = /home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file_UART/samples/tirtos/certs/cc3200/certflasher/package/cfg/certflasher_pem4");
 
 /*
  *  ======== __ISA__ ========

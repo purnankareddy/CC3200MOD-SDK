@@ -151,7 +151,7 @@ void sstartNTP(void)
     ret = gethostbyname((signed char *)sNTP_HOSTNAME, strlen(sNTP_HOSTNAME), &ip,
             AF_INET);
     if (ret != 0) {
-        //System_printf("startNTP: NTP host cannot be resolved!", ret);
+        System_printf("startNTP: NTP host cannot be resolved!", ret);
     }
 
     ntpAddr.sin_addr.s_addr = htonl(ip);
@@ -162,23 +162,23 @@ void sstartNTP(void)
     ret = SNTP_start(sgetTime, ssetTime, stimeUpdateHook,
             (struct sockaddr *)&sntpServers, sNTP_SERVERS, 0);
     if (ret == 0) {
-        //System_printf("startNTP: SNTP cannot be started!", -1);
+        System_printf("startNTP: SNTP cannot be started!", -1);
     }
 
     Semaphore_Params_init(&semParams);
     semParams.mode = Semaphore_Mode_BINARY;
     ssemHandle = Semaphore_create(0, &semParams, NULL);
     if (ssemHandle == NULL) {
-        //System_printf("startNTP: Cannot create semaphore!", -1);
+        System_printf("startNTP: Cannot create semaphore!", -1);
     }
 
     SNTP_forceTimeSync();
     if (!Semaphore_pend(ssemHandle, sNTP_TIMEOUT)) {
-        //System_printf("startNTP: error, no response from NTP server\n");
+        System_printf("startNTP: error, no response from NTP server\n");
     }
 */
     ts = time(NULL);
-    //System_printf("Current time: %s\n", ctime(&ts));
+    System_printf("Current time: %s\n", ctime(&ts));
     strncpy(timeslap,ctime(&ts),strlen(ctime(&ts)));
 }
 //---------------------------------///
@@ -239,9 +239,9 @@ else if (ch_no == 4)
 	if(MAP_ADCFIFOLvlGet(ADC_BASE, uiChannel)){
 
 	        unsigned long ulSample = MAP_ADCFIFORead(ADC_BASE, uiChannel);
-		//IOT_INFO("%lu\n",ulSample);
-		//IOT_INFO("%f...\n",(float)((ulSample >> 2 ) & 0x0FFF));
-		//IOT_INFO("\n\rVoltage is %f\n\r",(((float)((ulSample >> 2 ) & 0x0FFF))*1.4)/4096);
+		IOT_INFO("%lu\n",ulSample);
+		IOT_INFO("%f...\n",(float)((ulSample >> 2 ) & 0x0FFF));
+		IOT_INFO("\n\rVoltage is %f\n\r",(((float)((ulSample >> 2 ) & 0x0FFF))*1.4)/4096);
 		pw=(((float)((ulSample >> 2 ) & 0x0FFF))*1.4)/4096;
 	}
 return pw;
@@ -251,17 +251,17 @@ return pw;
 void MQTTcallbackHandler(AWS_IoT_Client *pClient, char *topicName,
         uint16_t topicNameLen, IoT_Publish_Message_Params *params, void *pData)
 {
-    //IOT_INFO("Subscribe callback");
-    //IOT_INFO("%.*s\t%.*s",topicNameLen, topicName, (int)params->payloadLen,
+    IOT_INFO("Subscribe callback");
+    IOT_INFO("%.*s\t%.*s",topicNameLen, topicName, (int)params->payloadLen,
             (char *)params->payload);
 
-    //IOT_INFO("%d",(int)params->payloadLen);
-    //IOT_INFO("%s",(char *)params->payload);
+    IOT_INFO("%d",(int)params->payloadLen);
+    IOT_INFO("%s",(char *)params->payload);
     //ch = (char *)params->payload;
-    ////IOT_INFO("----%s----\n",ch);
+    //IOT_INFO("----%s----\n",ch);
 
      /*if(!strncmp((char *)params->payload ,"gpio", 4)){
-	//IOT_INFO("GPIO FUNCTION CALL...\n");
+	IOT_INFO("GPIO FUNCTION CALL...\n");
 	GPIOPinWrite(GPIOA3_BASE, 0x10, 0x10);
 	GPIOPinWrite(GPIOA1_BASE, 0x80, 0x80);
         GPIOPinWrite(GPIOA1_BASE, 0x40, 0x40);
@@ -272,7 +272,7 @@ void MQTTcallbackHandler(AWS_IoT_Client *pClient, char *topicName,
 	GPIOPinWrite(GPIOA3_BASE, 0x10, 0x10);
 	ch = 1;
 	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
+	IOT_INFO("----current time = %s-----",timeslap);
 
 
  }
@@ -281,7 +281,7 @@ void MQTTcallbackHandler(AWS_IoT_Client *pClient, char *topicName,
 	GPIOPinWrite(GPIOA1_BASE, 0x80, 0x80);
 	ch =2;
 	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
+	IOT_INFO("----current time = %s-----",timeslap);
  
 }
 
@@ -289,7 +289,7 @@ void MQTTcallbackHandler(AWS_IoT_Client *pClient, char *topicName,
         GPIOPinWrite(GPIOA1_BASE, 0x40, 0x40);
 	ch =3;
 	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
+	IOT_INFO("----current time = %s-----",timeslap);
 
  }
 
@@ -298,7 +298,7 @@ void MQTTcallbackHandler(AWS_IoT_Client *pClient, char *topicName,
 
 	ch=4;
 	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
+	IOT_INFO("----current time = %s-----",timeslap);
 
  } 
 
@@ -306,7 +306,7 @@ void MQTTcallbackHandler(AWS_IoT_Client *pClient, char *topicName,
 	GPIOPinWrite(GPIOA3_BASE, 0x10, 0x0);
 ch =1;
 	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
+	IOT_INFO("----current time = %s-----",timeslap);
 
  }
 
@@ -314,7 +314,7 @@ ch =1;
 	GPIOPinWrite(GPIOA1_BASE, 0x80, 0x0);
 ch=2;
 	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
+	IOT_INFO("----current time = %s-----",timeslap);
 
  }
 
@@ -322,7 +322,7 @@ ch=2;
         GPIOPinWrite(GPIOA1_BASE, 0x40, 0x0);
 ch=3;
 	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
+	IOT_INFO("----current time = %s-----",timeslap);
 
  }
 
@@ -330,23 +330,23 @@ ch=3;
         GPIOPinWrite(GPIOA1_BASE, 0x10, 0x0);
  ch=4;
 	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
+	IOT_INFO("----current time = %s-----",timeslap);
 
  } 
 
     if(!strncmp((char *)params->payload ,"philps", 6)){
-//IOT_INFO("philips Function Call...\n");
+IOT_INFO("philips Function Call...\n");
 
 
 }
 
     if(!strncmp((char *)params->payload ,"belkin", 6)){
-//IOT_INFO("Belkin Function Call...\n");
+IOT_INFO("Belkin Function Call...\n");
 }
 
 /*
     if (!strncmp((char *)params->payload , "copy", 4)){
-    //IOT_INFO("\n GPIO OFF using COPY..  \n");
+    IOT_INFO("\n GPIO OFF using COPY..  \n");
     GPIOPinWrite(GPIOA3_BASE, 0x10, 0);
     GPIOPinWrite(GPIOA1_BASE, 0x80, 0);
     GPIOPinWrite(GPIOA1_BASE, 0x40, 0);
@@ -365,7 +365,7 @@ void disconnectCallbackHandler(AWS_IoT_Client *pClient, void *data)
 
     AWS_IoT_Client *client = (AWS_IoT_Client *)data;
     if (aws_iot_is_autoreconnect_enabled(client)) {
-        //IOT_INFO("Auto Reconnect is enabled, Reconnecting attempt will start now");
+        IOT_INFO("Auto Reconnect is enabled, Reconnecting attempt will start now");
     }
     else {
         IOT_WARN("Auto Reconnect not enabled. Starting manual reconnect...");
@@ -397,7 +397,7 @@ void runAWSClient(void)
     IoT_Publish_Message_Params paramsQOS0;
     IoT_Publish_Message_Params paramsQOS1;
 
-    //IOT_INFO("\nAWS IoT SDK Version %d.%d.%d-%s\n", VERSION_MAJOR, VERSION_MINOR,
+    IOT_INFO("\nAWS IoT SDK Version %d.%d.%d-%s\n", VERSION_MAJOR, VERSION_MINOR,
             VERSION_PATCH, VERSION_TAG);
 
 
@@ -431,7 +431,7 @@ void runAWSClient(void)
     connectParams.clientIDLen = (uint16_t)strlen(AWS_IOT_MQTT_CLIENT_ID);
     connectParams.isWillMsgPresent = false;
 
-    //IOT_INFO("Connecting...");
+    IOT_INFO("Connecting...");
     rc = aws_iot_mqtt_connect(&client, &connectParams);
     if (SUCCESS != rc) {
         IOT_ERROR("Error(%d) connecting to %s:%d", rc, mqttInitParams.pHostURL,
@@ -449,7 +449,7 @@ void runAWSClient(void)
         IOT_ERROR("Unable to set Auto Reconnect to true - %d", rc);
     }
 
-    //IOT_INFO("Subscribing...");
+    IOT_INFO("Subscribing...");
     rc = aws_iot_mqtt_subscribe(&client, topicName, topicNameLen, QOS0,
             MQTTcallbackHandler, NULL);
     if (SUCCESS != rc) {
@@ -480,7 +480,7 @@ void runAWSClient(void)
             continue;
         }
 	
-        //IOT_INFO("-->sleep");
+        IOT_INFO("-->sleep");
         Task_sleep(1000);
        /* sprintf(cPayload, "%s : %d ", "hello from SDK QOS0", i++);
         // Recalculate string len to avoid truncation in subscribe callback 
@@ -517,6 +517,6 @@ void runAWSClient(void)
         IOT_ERROR("An error occurred in the loop. Error code = %d\n", rc);
     }
     else {
-        //IOT_INFO("Publish done\n");
+        IOT_INFO("Publish done\n");
     }
 }

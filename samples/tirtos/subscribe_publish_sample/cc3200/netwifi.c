@@ -143,7 +143,7 @@ void SimpleLinkHttpServerCallback(SlHttpServerEvent_t *pHttpServerEvent,
 void smartConfigFxn()
 {
 /*  .... Starting
-//System_printf("SMART CONFIG Function Called...\n");
+System_printf("SMART CONFIG Function Called...\n");
   uint8_t policyVal;
 
   // Set auto connect policy 
@@ -190,7 +190,7 @@ unsigned char policyVal;
 while ((deviceConnected != true) || (ipAcquired != true))
   //  while((!IS_CONNECTED(g_ulStatus1)) || (!IS_IP_ACQUIRED(g_ulStatus1)))
     {
-	//System_printf("RUNNING IN LOOP...\n");
+	System_printf("RUNNING IN LOOP...\n");
        // _SlNonOsMainLoopTask();
     }
      //
@@ -216,52 +216,52 @@ while ((deviceConnected != true) || (ipAcquired != true))
  */
 void setStationMode(void)
 {
-   //System_printf("Station ...mode has Called from Net. WIFI Function...\n");
+   System_printf("Station ...mode has Called from Net. WIFI Function...\n");
     int           mode;
     int           response;
     unsigned char param;
-//System_printf("1\n");
+System_printf("1\n");
     mode = sl_Start(0, 0, 0);
-//System_printf("2\n");
+System_printf("2\n");
     if (mode < 0) {
-//System_printf("3\n");
-	//System_printf("SL_START_ABORTED..\n");
+System_printf("3\n");
+	System_printf("SL_START_ABORTED..\n");
         System_abort("Could not initialize SimpleLink Wi-Fi..");
     }
-//System_printf("4\n");
+System_printf("4\n");
     /* Change network processor to station mode */
     if (mode != ROLE_STA) {
-	//System_printf("SL_wlanSETMODE..\n");
+	System_printf("SL_wlanSETMODE..\n");
         sl_WlanSetMode(ROLE_STA);
-//System_printf("5\n");
+System_printf("5\n");
         /* Restart network processor */
         sl_Stop(0);
         mode = sl_Start(0, 0, 0);
         if (mode < 0) {
-	//System_printf("SL_FAILED TO SET SIMPLE LINK WIFI...\n");
+	System_printf("SL_FAILED TO SET SIMPLE LINK WIFI...\n");
             System_abort("Failed to set SimpleLink Wi-Fi to Station mode");
         }
-//System_printf("6\n");
+System_printf("6\n");
     }
-	//System_printf("WLAN DISCONNECTED.....\n");
+	System_printf("WLAN DISCONNECTED.....\n");
     sl_WlanDisconnect();
     /* Set auto connect policy */
-//System_printf("7\n");
+System_printf("7\n");
     response = sl_WlanPolicySet(SL_POLICY_CONNECTION,
             SL_CONNECTION_POLICY(1, 0, 0, 0, 0), NULL, 0);
     if (response < 0) {
-//System_printf("8\n");
+System_printf("8\n");
         System_abort("Failed to set connection policy to auto");
     }
-//System_printf("9\n");
+System_printf("9\n");
     /* Enable DHCP client */
     param = 1;
     response = sl_NetCfgSet(SL_IPV4_STA_P2P_CL_DHCP_ENABLE, 1, 1, &param);
     if(response < 0) {
-//System_printf("10\n");
+System_printf("10\n");
        System_abort("Could not enable DHCP client");
     }
-//System_printf("11\n");
+System_printf("11\n");
     sl_Stop(0);
 
     /* Set connection variables to initial values */
@@ -275,8 +275,8 @@ void setStationMode(void)
  */
 static int wlanConnect()
 {
-//System_printf("WLAN CONNECTION FUNCTION CALLED. with ..\n");
-////System_printf("WLAN CONNECTION FUNCTION CALLED. with %s. %s.\n",(signed char*)SSID,(signed char *)SECURITY_KEY);
+System_printf("WLAN CONNECTION FUNCTION CALLED. with ..\n");
+//System_printf("WLAN CONNECTION FUNCTION CALLED. with %s. %s.\n",(signed char*)SSID,(signed char *)SECURITY_KEY);
     SlSecParams_t secParams = {0};
     int ret = 0;
 
@@ -297,7 +297,7 @@ static int wlanConnect()
 void NetWiFi_init()
 {
 
-//System_printf("CC3200 has Called from main.c...\n");
+System_printf("CC3200 has Called from main.c...\n");
     WiFi_Params wifiParams;
     WiFi_Handle handle;
 
@@ -315,25 +315,25 @@ void NetWiFi_init()
     wifiParams.bitRate = SPI_BIT_RATE;
     handle = WiFi_open(Board_WIFI, Board_WIFI_SPI, NULL, &wifiParams);
     if (handle == NULL) {
-	//System_printf("WIFI DRIVER PROBLEM...\n");
+	System_printf("WIFI DRIVER PROBLEM...\n");
         System_abort("WiFi driver failed to open.");
     }
 
     setStationMode();
 
-    //System_printf("Seting Station Mode Over...\n");
+    System_printf("Seting Station Mode Over...\n");
 
     /* Host driver starts the network processor */
     if (sl_Start(NULL, NULL, NULL) < 0) {
         System_abort("Could not initialize WiFi");
     }
-//System_printf("12 -> Conecting to Wifi Router.. and gettinf IP...\n");
+System_printf("12 -> Conecting to Wifi Router.. and gettinf IP...\n");
 
     if (wlanConnect() < 0) {
         //System_abort("Could not connect to WiFi AP");
-//System_printf("13\n");
+System_printf("13\n");
     }
-//System_printf("14\n");
+System_printf("14\n");
     /*
      * Wait for the WiFi to connect to an AP. If a profile for the AP in
      * use has not been stored yet, press Board_BUTTON0 to start SmartConfig.
@@ -346,30 +346,32 @@ void NetWiFi_init()
          *  GPIO interrupts, but for simplicity polling is used to check the
          *  button.
          */
-//System_printf("15\n");
+System_printf("15\n");
         //currButton = GPIO_read(Board_BUTTON0);
         currButton = GPIOPinRead(GPIOA2_BASE, 0x2); 
     //    if (((currButton == 0) && (prevButton != 0)) || ++smarttime == 1200) {
         if ((currButton == 0) && (prevButton != 0)) {
-		//System_printf("16\n");	
+		System_printf("16\n");	
             	smartConfigFxn();
         }
         prevButton = currButton;
         
         Task_sleep(50);
-//System_printf("17\n");
+System_printf("17\n");
     }
 
     /* Retrieve & print the IP address */
     sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO, &dhcpIsOn, &len,
             (unsigned char *)&ipV4);
-    //System_printf("CC3200 has ..connected to AP and acquired an IP address.\n");
-    //System_printf("IP Address: %d.%d.%d.%d\n", SL_IPV4_BYTE(ipV4.ipV4,3),SL_IPV4_BYTE(ipV4.ipV4,2), SL_IPV4_BYTE(ipV4.ipV4,1),SL_IPV4_BYTE(ipV4.ipV4,0));
+    System_printf("CC3200 has ..connected to AP and acquired an IP address.\n");
+    System_printf("IP Address: %d.%d.%d.%d\n", SL_IPV4_BYTE(ipV4.ipV4,3),
+            SL_IPV4_BYTE(ipV4.ipV4,2), SL_IPV4_BYTE(ipV4.ipV4,1),
+            SL_IPV4_BYTE(ipV4.ipV4,0));
     System_flush();
 
     /* Use NTP to get the current time, as needed for SSL authentication */
     startNTP();
-//System_printf("18\n");
+System_printf("18\n");
 
     //GPIO_write(Board_LED0, Board_LED_ON);
      GPIOPinWrite(GPIOA3_BASE, 0x40, 0x0);

@@ -65,6 +65,7 @@ extern void dynamic_power_1(void);
 extern int updateota(void);
 extern void deviceidread();
 extern void philiphsidread();
+//extern void deviceidlenread();
 //extern void otamain(void);
 /*
  *  ======== slTask ========
@@ -106,7 +107,7 @@ void slTask(unsigned int arg0, unsigned int arg1)
 
     /*
      *  Initialize UART port 0 used by SysCallback.  This and other SysCallback
-     *  UART functions are implemented in UARTUtils.c. Calls to //System_printf
+     *  UART functions are implemented in UARTUtils.c. Calls to System_printf
      *  will go to UART0, the same as printf.
      */
     UARTUtils_systemInit(0);
@@ -114,6 +115,7 @@ void slTask(unsigned int arg0, unsigned int arg1)
     /* Initialize SimpleLink */
     //deviceidread();
     NetWiFi_init();
+    //deviceidlenread();
     deviceidread();
     philiphsidread();
 

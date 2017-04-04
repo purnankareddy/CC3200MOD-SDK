@@ -11,7 +11,7 @@ var makeAssembly = false;
 var Executable = xdc.module('xdc.bld.Executable');
 
 var exeOpts = new Executable.Attrs({
-        cfgScript: '/home/mdubuntu/Downloads/CC3200MOD-SDK/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample.cfg',
+        cfgScript: '/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file_UART/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample.cfg',
         profile: 'release',
         cfgHome: 'subscribe_publish_sample',
 });
@@ -41,7 +41,7 @@ else {
 
 var thisObj = {
     cfg:        'subscribe_publish_sample.cfg',
-    outputPath: '/home/mdubuntu/Downloads/CC3200MOD-SDK/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample',
+    outputPath: '/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file_UART/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample',
     exeName:    'subscribe_publish_sample' + suffix,
     exeIntName: 'subscribe_publish_sample' + suffix.replace('.', '_'),
     targ:       targ,

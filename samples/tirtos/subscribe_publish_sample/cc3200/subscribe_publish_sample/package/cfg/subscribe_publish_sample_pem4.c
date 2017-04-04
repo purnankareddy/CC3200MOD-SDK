@@ -1689,7 +1689,7 @@ __FAR__ const xdc_SizeT ti_sysbios_knl_Task_Module_State_terminatedQ__O = offset
  *  Define absolute path prefix for this executable's
  *  configuration generated files.
  */
-xdc__META(__ASM__, "@(#)__ASM__ = /home/mdubuntu/Downloads/CC3200MOD-SDK/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample/package/cfg/subscribe_publish_sample_pem4");
+xdc__META(__ASM__, "@(#)__ASM__ = /home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file_UART/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample/package/cfg/subscribe_publish_sample_pem4");
 
 /*
  *  ======== __ISA__ ========

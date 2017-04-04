@@ -112,7 +112,7 @@ void startNTP(void)
     ret = gethostbyname((signed char *)NTP_HOSTNAME, strlen(NTP_HOSTNAME), &ip,
             AF_INET);
     if (ret != 0) {
-        //System_printf("startNTP: NTP host cannot be resolved!", ret);
+        System_printf("startNTP: NTP host cannot be resolved!", ret);
     }
 
     ntpAddr.sin_addr.s_addr = htonl(ip);
@@ -123,23 +123,23 @@ void startNTP(void)
     ret = SNTP_start(getTime, setTime, timeUpdateHook,
             (struct sockaddr *)&ntpServers, NTP_SERVERS, 0);
     if (ret == 0) {
-        //System_printf("startNTP: SNTP cannot be started!", -1);
+        System_printf("startNTP: SNTP cannot be started!", -1);
     }
 
     Semaphore_Params_init(&semParams);
     semParams.mode = Semaphore_Mode_BINARY;
     semHandle = Semaphore_create(0, &semParams, NULL);
     if (semHandle == NULL) {
-        //System_printf("startNTP: Cannot create semaphore!", -1);
+        System_printf("startNTP: Cannot create semaphore!", -1);
     }
 
     SNTP_forceTimeSync();
     if (!Semaphore_pend(semHandle, NTP_TIMEOUT)) {
-        //System_printf("startNTP: error, no response from NTP server\n");
+        System_printf("startNTP: error, no response from NTP server\n");
     }
 
     ts = time(NULL);
-    //System_printf("Current time: %s\n", ctime(&ts));
+    System_printf("Current time: %s\n", ctime(&ts));
     if(strstr(ctime(&ts),"1970")){
 	RebootMCU();
     }

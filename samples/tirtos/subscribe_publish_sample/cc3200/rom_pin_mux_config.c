@@ -71,17 +71,9 @@ void PinMuxConfig(void)
     MAP_PinModeSet(PIN_64, PIN_MODE_0);
  
 
-//
-    // Configure PIN_55 for UART0 UART0_TX
-    // Configure PIN_57 for UART0 UART0_RX
+MAP_PRCMPeripheralClkEnable(PRCM_UARTA1, PRCM_RUN_MODE_CLK);
+    MAP_PRCMPeripheralClkEnable(PRCM_UARTA0, PRCM_RUN_MODE_CLK);
 
-	//MAP_PRCMPeripheralClkEnable(PRCM_UARTA1, PRCM_RUN_MODE_CLK);
-	//MAP_PRCMPeripheralClkEnable(PRCM_UARTA0, PRCM_RUN_MODE_CLK);
-
-	//MAP_PinTypeUART(PIN_55, PIN_MODE_3);
-	//MAP_PinTypeUART(PIN_57, PIN_MODE_3);
-
-//
    
     //
     // Enable Peripheral Clocks 
@@ -106,6 +98,20 @@ void PinMuxConfig(void)
     // Configure PIN_60 for ADC0 ADC_CH3
     //
     MAP_PinTypeADC(PIN_60, PIN_MODE_255);
+
+
+//
+    // Configure PIN_55 for UART0 UART0_TX
+    //
+    MAP_PinTypeUART(PIN_55, PIN_MODE_3);
+
+    //
+    // Configure PIN_57 for UART0 UART0_RX
+    //
+    MAP_PinTypeUART(PIN_57, PIN_MODE_3);
+
+
+
 
     //
     // Configure PIN_02 for GPIO Output

@@ -87,7 +87,7 @@ static UART_Handle openHandle(unsigned int index, bool binary)
 
     /* Only UART 0 is supported in this example. */
     if (index >= NUM_PORTS) {
-        //System_printf("UART index %d not supported, valid range is 0-%d", index, (NUM_PORTS - 1));
+        System_printf("UART index %d not supported, valid range is 0-%d", index, (NUM_PORTS - 1));
         return (NULL);
     }
 
@@ -139,7 +139,7 @@ void UARTUtils_loggerIdleInit(unsigned int index)
     Assert_isTrue(ports[index].open == false, NULL);
     loggerHandle = openHandle(index, true);
     if (loggerHandle == NULL) {
-        //System_printf("Failed to open UART %d", index);
+        System_printf("Failed to open UART %d", index);
     }
 }
 

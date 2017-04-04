@@ -1,8 +1,9 @@
 #!/bin/bash
 
 path=`pwd`
-RANDOM=$$
-no=$RANDOM
+#RANDOM=$$
+RAN=$(shuf -i 10000-100000 -n 1);
+no=$RAN
 cat > .Install.log << EOF3
 Logfile for Installing Paasmer...
 EOF3

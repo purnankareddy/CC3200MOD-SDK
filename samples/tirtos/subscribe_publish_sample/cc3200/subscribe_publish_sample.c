@@ -250,7 +250,7 @@ char belkinstatus[10][2];//it is the on off status of the belkins
 #define WLAN_DEL_ALL_PROFILES   0xFF
 
 #include "Board.h"
-
+void deviceidlenread();
 void deviceidread();
 extern void smartConfigFxn();
 
@@ -308,6 +308,7 @@ volatile unsigned long  g_ulPacketCount = UDP_PACKET_COUNT;
 unsigned char  g_ucSimplelinkstarted = 0;
 unsigned long  g_ulIpAddr = 0;
 char g_cBsdBuf[BUF_SIZE];
+int sizeofdeviceid;
 
 #if defined(ccs) || defined(gcc)
 extern void (* const g_pfnVectors[])(void);
@@ -319,7 +320,7 @@ extern uVectorEntry __vector_table;
 //                 GLOBAL VARIABLES -- End
 //*****************************************************************************
 
-
+void deviceidlenread();
 int UDPRECIEVER();
 ///////////-----from wifi audio app------------////////////
 
@@ -389,17 +390,17 @@ struct philips_status{
 
 struct philips_status *p_bulb; 
  
-//
-void deviceidread()
+void deviceidlenread()
 {  
     //char path[] = "/cert/deviceid.txt";
-    const char* path="deviceid.txt";
+    const char* path="deviceidlen.txt";
      //unsigned char *path = "deviceid.txt";
 //    unsigned char *buffer;
 //int dlen = strlen(deviceID);
 //flashFiledevice(path, (unsigned char *)deviceID, dlen);HIVEPIE-25614
-unsigned char buffers[30];
-    int len = SIZEOFID;
+//unsigned char buffers[30];
+    int len = 2;
+    int buffers;
     //int len = 13;
     long rets;
     long fileHandles = -1;
@@ -412,12 +413,60 @@ unsigned char buffers[30];
     //IOT_INFO("sl_fsopen ret value is %d\n",rets);
     //ret = sl_FsRead(fileHandle, 0, (unsigned char  *)buffer, len);
     rets = sl_FsRead(fileHandles, 0,buffers, len);
-    buffers[len]='\0';
+    //buffers[len]='\0';
 
     ////System_printf("Data in the file is: %s\n",(unsigned char  *)buffer);
     //deviceID=(unsigned char  *)buffer;
     //strcpy(DeviceID,(unsigned char  *)buffer);
     //System_printf("Data in the file is: %s\n",buffers);
+    //deviceID=(unsigned char  *)buffer;
+    sizeofdeviceid=buffers;
+    IOT_INFO("size of the deviceid is %d\n",sizeofdeviceid);
+    //strcpy(pubtopName,DeviceID);
+    //strcat(pubtopName,"/sub");
+    //#ifdef AWS_IOT_MY_THING_NAME
+    //#define AWS_IOT_MY_THING_NAME DeviceID
+    //#endif
+
+    //#ifdef AWS_IOT_MQTT_CLIENT_ID 
+    //#define AWS_IOT_MQTT_CLIENT_ID DeviceID
+    //#endif
+
+    rets = sl_FsClose(fileHandles, NULL, NULL, 0);
+
+
+}
+////////////---------------////////  
+
+//
+void deviceidread()
+{  
+    //char path[] = "/cert/deviceid.txt";
+    const char* path="deviceid.txt";
+     //unsigned char *path = "deviceid.txt";
+//    unsigned char *buffer;
+//int dlen = strlen(deviceID);
+//flashFiledevice(path, (unsigned char *)deviceID, dlen);HIVEPIE-25614
+unsigned char buffers[30];
+    int len = SIZEOFID;
+    //int len = sizeofdeviceid;
+    long rets;
+    long fileHandles = -1;
+    unsigned long ulToken;
+    IOT_INFO("file is opening..........\n");
+    //ret = sl_FsOpen((unsigned char *)path,FS_MODE_OPEN_CREATE(len,  _FS_FILE_PUBLIC_READ), NULL,&fileHandle);
+    //ret = sl_FsOpen((unsigned char *)path, FS_MODE_OPEN_READ, NULL, &fileHandle);
+    rets = sl_FsOpen((unsigned char *)path, FS_MODE_OPEN_READ, NULL, &fileHandles);
+    //ret = sl_FsOpen("/cert/deviceid.txt",FS_MODE_OPEN_READ, NULL,&fileHandle);
+    IOT_INFO("sl_fsopen ret value is %d\n",rets);
+    //ret = sl_FsRead(fileHandle, 0, (unsigned char  *)buffer, len);
+    rets = sl_FsRead(fileHandles, 0,buffers, len);
+    buffers[len]='\0';
+
+    //System_printf("Data in the file is: %s\n",(unsigned char  *)buffer);
+    //deviceID=(unsigned char  *)buffer;
+    //strcpy(DeviceID,(unsigned char  *)buffer);
+    System_printf("Data in the file is: %s\n",buffers);
     //deviceID=(unsigned char  *)buffer;
     strcpy(DeviceID,buffers);
     strcpy(pubtopName,DeviceID);
@@ -438,12 +487,12 @@ unsigned char buffers[30];
        long            RetVal;        //negative retval is an error
        unsigned long   Offset = 0;
        unsigned char   InputBuffer[100];
-       //IOT_INFO("file is opening. the path of the file is %s\n",(unsigned char *)DeviceFileName);
+       IOT_INFO("file is opening. the path of the file is %s\n",(unsigned char *)DeviceFileName);
        // Create a file and write data. The file in this example is secured, without signature and with a fail safe commit
        RetVal = sl_FsOpen((unsigned char *)DeviceFileName,
                                         FS_MODE_OPEN_CREATE(MaxSize , _FS_FILE_OPEN_FLAG_NO_SIGNATURE_TEST | _FS_FILE_OPEN_FLAG_COMMIT ),
                                         NULL, &DeviceFileHandle);
-       //IOT_INFO("file is opened\n");
+       IOT_INFO("file is opened\n");
 
        Offset = 0;
        //Preferred in secure file that the Offset and the length will be aligned to 16 bytes.
@@ -460,7 +509,7 @@ unsigned char buffers[30];
        RetVal = sl_FsRead( DeviceFileHandle, Offset, (unsigned char *)InputBuffer, strlen("HelloWorld"));
 
        RetVal = sl_FsClose(DeviceFileHandle, NULL, NULL , 0);
-      //IOT_INFO("data in file is %s\n",(unsigned char *)InputBuffer);*/
+      IOT_INFO("data in file is %s\n",(unsigned char *)InputBuffer);*/
 
 /*
 char sentence[1000];
@@ -502,7 +551,7 @@ int flashFiledevice(const char *path, const unsigned char *buffer, int len)
     long fileHandle;
 
     if (!path || !buffer) {
-        //System_printf("flashfile: Error invalid input params\n");
+        System_printf("flashfile: Error invalid input params\n");
         ret = -1;
         goto flashdone;
     }
@@ -511,7 +560,8 @@ int flashFiledevice(const char *path, const unsigned char *buffer, int len)
             FS_MODE_OPEN_CREATE(len, _FS_FILE_OPEN_FLAG_NO_SIGNATURE_TEST | _FS_FILE_OPEN_FLAG_COMMIT), NULL,
             &fileHandle);
     if (ret < 0) {
-        //System_printf("flashfile: Error couldn't open the file %s"", error code = %d\n", path, ret);
+        System_printf("flashfile: Error couldn't open the file %s"
+                ", error code = %d\n", path, ret);
         ret = -1;
         goto flashdone;
     }
@@ -520,14 +570,16 @@ int flashFiledevice(const char *path, const unsigned char *buffer, int len)
     if (ret < 0) {
         sl_FsClose(fileHandle, NULL, NULL, 0);
 
-        //System_printf("flashfile: Error couldn't write to the file %s"", error code = %d\n", path, ret);
+        System_printf("flashfile: Error couldn't write to the file %s"
+                ", error code = %d\n", path, ret);
         ret = -1;
         goto flashdone;
     }
 
     ret = sl_FsClose(fileHandle, NULL, NULL, 0);
     if (ret < 0) {
-        //System_printf("flashfile: Error couldn't close tonnbn the file %s"", error code = %d\n", path, ret);
+        System_printf("flashfile: Error couldn't close to the file %s"
+                ", error code = %d\n", path, ret);
         ret = -1;
         goto flashdone;
     }
@@ -546,17 +598,17 @@ void philiphsidread()
     long rets;
     long fileHandles = -1;
     unsigned long ulToken;
-    //IOT_INFO("file is opening..........\n");
+    IOT_INFO("file is opening..........\n");
     rets = sl_FsOpen((unsigned char *)path, FS_MODE_OPEN_READ, NULL, &fileHandles);
     if (rets < 0){
-		//IOT_INFO("philipsid.txt file is not created");
+		IOT_INFO("philipsid.txt file is not created");
 		philipsidstatus = 0;	
 		}
     else{
-    	//IOT_INFO("sl_fsopen ret value is %d\n",rets);
+    	IOT_INFO("sl_fsopen ret value is %d\n",rets);
     	rets = sl_FsRead(fileHandles, 0, buffers, len);
     	buffers[len]="\0";
-    	//System_printf("Data in the file is: %s\n",buffers);
+    	System_printf("Data in the file is: %s\n",buffers);
     	if (buffers[0] != "\0"){
     		strcpy(philips_id,buffers);
 		philips_id[len]="\0";
@@ -579,7 +631,7 @@ void sstartNTP(void)
     //unsigned long ip;
     time_t ts;
     ts = time(NULL);
-    //System_printf("Current time: %s\n", ctime(&ts));
+    System_printf("Current time: %s\n", ctime(&ts));
     strncpy(timeslap,ctime(&ts),strlen(ctime(&ts))); 
     
 }
@@ -611,7 +663,7 @@ int i=0,temp=0;
 while(1)
 {
 	Phantom_buff=0;
-	//IOT_INFO("....Dynamic Power-1....\n");
+	IOT_INFO("....Dynamic Power-1....\n");
 
         if(i1==10)
                i1=0;
@@ -623,27 +675,27 @@ while(1)
                l1=0;
                
         if(PWR1==1){
-		//IOT_INFO("....Dynamic Power-1  --- socket- 1....\n");
+		IOT_INFO("....Dynamic Power-1  --- socket- 1....\n");
                 Power1[i1++]=power(1);
         }
         if(PWR2==1){
-		//IOT_INFO("....Dynamic Power-1  --- socket- 2....\n");
+		IOT_INFO("....Dynamic Power-1  --- socket- 2....\n");
                 Power2[j1++]=power(2);
         }
         if(PWR3==1){
-		//IOT_INFO("....Dynamic Power-1  --- socket- 3....\n");
+		IOT_INFO("....Dynamic Power-1  --- socket- 3....\n");
                 Power3[k1++]=power(3);
         }
         if(PWR4==1){
-		//IOT_INFO("....Dynamic Power-1  --- socket- 4....\n");
+		IOT_INFO("....Dynamic Power-1  --- socket- 4....\n");
                 Power4[l1++]=power(4);
         }
 	
 
 	//first power array veryvifing...
-	//IOT_INFO("....Dynamic Power-2....\n");
+	IOT_INFO("....Dynamic Power-2....\n");
 	if(PWR1==1){
-	//IOT_INFO("....Dynamic Power-2  --- socket- 1....\n");
+	IOT_INFO("....Dynamic Power-2  --- socket- 1....\n");
 	for(i=0;i<i1;i++){
 	        if(max1 < Power1[i]){
 	                max1 = Power1[i];
@@ -660,7 +712,7 @@ while(1)
 	}
 	//Second power array veryvifing...
 	if(PWR2==1){
-	//IOT_INFO("....Dynamic Power-2  --- socket- 2....\n");
+	IOT_INFO("....Dynamic Power-2  --- socket- 2....\n");
 	for(i=0;i<j1;i++){
         if(max2 < Power2[i]){
 	                max2 = Power2[i];
@@ -677,7 +729,7 @@ while(1)
 	}
 	//third power array veryvifing...
 	if(PWR3==1){
-	//IOT_INFO("....Dynamic Power-2  --- socket- 3....\n");
+	IOT_INFO("....Dynamic Power-2  --- socket- 3....\n");
 	for(i=0;i<k1;i++){
 	        if(max3 < Power3[i]){
 	                max3 = Power3[i];
@@ -694,7 +746,7 @@ while(1)
 	}
 	//fourth power array veryvifing...
 	if(PWR4==1){
-	//IOT_INFO("....Dynamic Power-2  --- socket- 4....\n");
+	IOT_INFO("....Dynamic Power-2  --- socket- 4....\n");
 	for(i=0;i<l1;i++){
 	        if(max4 < Power4[i]){
 	                max4 = Power4[i];
@@ -712,24 +764,24 @@ while(1)
 /*
 	for(temp=0;((temp<l1)||(temp<k1)||(temp<j1)||(temp<i1));temp++)
 	{
-		//IOT_INFO("Dynamic power ...\n\tSocket-1: %f \n\tSocket-2: %f \n\tSocket-3: %f \n\tSocket-4: %f \n",Power1[temp],Power2[temp],Power3[temp],Power4[temp]);
+		IOT_INFO("Dynamic power ...\n\tSocket-1: %f \n\tSocket-2: %f \n\tSocket-3: %f \n\tSocket-4: %f \n",Power1[temp],Power2[temp],Power3[temp],Power4[temp]);
 	}
 */
 	int i2=i1,j2=j1,k2=k1,l2=l1;
-	//IOT_INFO("\nDynamic Power Calculations in Array: \n");	
+	IOT_INFO("\nDynamic Power Calculations in Array: \n");	
 	for(temp=0;((temp<l1)||(temp<k1)||(temp<j1)||(temp<i1));temp++)
 	{
 		if(temp<i2){
-			//IOT_INFO("Socket-1: %f \n",Power1[temp]);
+			IOT_INFO("Socket-1: %f \n",Power1[temp]);
 		}
 		if(temp<j2){
-			//IOT_INFO("Socket-2: %f \n",Power2[temp]);
+			IOT_INFO("Socket-2: %f \n",Power2[temp]);
 		}
 		if(temp<k2){
-			//IOT_INFO("Socket-3: %f \n",Power2[temp]);
+			IOT_INFO("Socket-3: %f \n",Power2[temp]);
 		}
 		if(temp<l2){
-			//IOT_INFO("Socket-4: %f \n",Power2[temp]);
+			IOT_INFO("Socket-4: %f \n",Power2[temp]);
 		}
 	}
 
@@ -762,9 +814,9 @@ int i=0,max=0;
 while(1){
 
 //first power array veryvifing...
-//IOT_INFO("....Dynamic Power-2....\n");
+IOT_INFO("....Dynamic Power-2....\n");
 if(PWR1==1){
-//IOT_INFO("....Dynamic Power-2  --- socket- 1....\n");
+IOT_INFO("....Dynamic Power-2  --- socket- 1....\n");
 for(i=0;i<i1;i++){
         if(max < Power1[i]){
                 max = Power1[i];
@@ -780,7 +832,7 @@ for(i=0;i<i1;i++){
 }
 //Second power array veryvifing...
 if(PWR2==1){
-//IOT_INFO("....Dynamic Power-2  --- socket- 2....\n");
+IOT_INFO("....Dynamic Power-2  --- socket- 2....\n");
 for(i=0;i<j1;i++){
         if(max < Power2[i]){
                 max = Power2[i];
@@ -796,7 +848,7 @@ for(i=0;i<j1;i++){
 }
 //third power array veryvifing...
 if(PWR3==1){
-//IOT_INFO("....Dynamic Power-2  --- socket- 3....\n");
+IOT_INFO("....Dynamic Power-2  --- socket- 3....\n");
 for(i=0;i<k1;i++){
         if(max < Power3[i]){
                 max = Power3[i];
@@ -812,7 +864,7 @@ for(i=0;i<k1;i++){
 }
 //fourth power array veryvifing...
 if(PWR4==1){
-//IOT_INFO("....Dynamic Power-2  --- socket- 4....\n");
+IOT_INFO("....Dynamic Power-2  --- socket- 4....\n");
 for(i=0;i<l1;i++){
         if(max < Power4[i]){
                 max = Power4[i];
@@ -864,7 +916,7 @@ int OTAServerInfoSet(void **pvOtaApp, char *vendorStr)
     strcpy((char *)g_otaOptServerInfo.rest_files_put, OTA_SERVER_REST_FILES_PUT);
     NetMACAddressGet((_u8 *)g_otaOptServerInfo.log_mac_address); 
     //sl_NetCfgGet(SL_MAC_ADDRESS_GET, NULL, &macAddressLen,(_u8 *)g_otaOptServerInfo.log_mac_address);
-   //IOT_INFO("mac id is %x.....",(_u8 *)g_otaOptServerInfo.log_mac_address);
+   IOT_INFO("mac id is %x.....",(_u8 *)g_otaOptServerInfo.log_mac_address);
 
 
     //
@@ -939,7 +991,7 @@ char sendmessage[70]; int cnt;
      if ((fd=socket(AF_INET,SOCK_DGRAM,0)) < 0) {
 	  //perror("socket");
 	  //exit(1);
-	 //IOT_INFO("....socket creation failed....\n");
+	 IOT_INFO("....socket creation failed....\n");
      }
 
 
@@ -948,7 +1000,7 @@ char sendmessage[70]; int cnt;
    /* if (setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)) < 0) {
        //perror("Reusing ADDR failed");
        //exit(1);
-	//IOT_INFO(".....setsockopt failed.....\n");
+	IOT_INFO(".....setsockopt failed.....\n");
        }*/
 /*** END OF MODIFICATION TO ORIGINAL */
 
@@ -962,13 +1014,13 @@ char sendmessage[70]; int cnt;
 addr.sin_addr.s_addr=htonl(HELLO_GROUP);
 
 sprintf(sendmessage,"Hiveypie is online. device id is %s",DeviceID);
-//IOT_INFO(".......sending message...........%s\n",sendmessage);
+IOT_INFO(".......sending message...........%s\n",sendmessage);
 cnt = sendto(fd,sendmessage,sizeof(sendmessage),0,(struct sockaddr *) &addr,sizeof(addr));
 if (cnt < 0){
-//IOT_INFO(".........sending failed........\n");
+IOT_INFO(".........sending failed........\n");
 }
 //if(cnt >= 0){
-////IOT_INFO(".......sending message...........%s\n",sendmessage);
+//IOT_INFO(".......sending message...........%s\n",sendmessage);
 //}
 
 
@@ -979,7 +1031,7 @@ addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
      if (bind(fd,(struct sockaddr *) &addr,sizeof(addr)) < 0) {
 	 // perror("bind");
 	 // exit(1);
-	//IOT_INFO("....bind failed....\n");
+	IOT_INFO("....bind failed....\n");
      }
      
      /* use setsockopt() to request that the kernel join a multicast group */
@@ -990,7 +1042,7 @@ addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
      if (setsockopt(fd,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq)) < 0) {
 	  //perror("setsockopt");
 	  //exit(1);
-	  //IOT_INFO("......setsockopt failed.....\n");
+	  IOT_INFO("......setsockopt failed.....\n");
      }
 	int udppackets=0,a=0,b=0;
      /* now just enter a read-print loop */
@@ -1000,30 +1052,30 @@ addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
 			       (struct sockaddr *) &addr,&addrlen)) < 0) {
 	       //perror("recvfrom");
 	       //exit(1);
-		//IOT_INFO(".....recvfrom failed.....\n");
+		IOT_INFO(".....recvfrom failed.....\n");
 	  }
 	 // puts(message);
-		////IOT_INFO("....%s.....",msgbuf);
-		//IOT_INFO("....%d.....",(unsigned int)addr.sin_addr.s_addr);
-		//IOT_INFO("....%x.....",addr.sin_addr.s_addr);
-		//IOT_INFO("....%x.....",REV_IP(addr.sin_addr.s_addr));
+		//IOT_INFO("....%s.....",msgbuf);
+		IOT_INFO("....%d.....",(unsigned int)addr.sin_addr.s_addr);
+		IOT_INFO("....%x.....",addr.sin_addr.s_addr);
+		IOT_INFO("....%x.....",REV_IP(addr.sin_addr.s_addr));
 		unsigned int val = REV_IP(addr.sin_addr.s_addr);
 
 			
 
-		//IOT_INFO("%d.%d.%d.%d",(val & 0xFF000000) >> 24,(val & 0x00FF0000) >> 16,(val & 0x0000FF00) >> 8,val & 0x000000FF);
+		IOT_INFO("%d.%d.%d.%d",(val & 0xFF000000) >> 24,(val & 0x00FF0000) >> 16,(val & 0x0000FF00) >> 8,val & 0x000000FF);
 		udppackets++;
-		//IOT_INFO("---udppackets received  %d-----\n",udppackets);
+		IOT_INFO("---udppackets received  %d-----\n",udppackets);
 		if(a==0 || b<=10)
 		{
 			if(a==0)
 			{
 				if( strstr(msgbuf,"IpBridge"))
 				{
-					//IOT_INFO("philips bridge ip is ---%d.%d.%d.%d",(val & 0xFF000000) >> 24,(val & 0x00FF0000) >> 16,(val & 0x0000FF00) >> 8,val & 0x000000FF);
+					IOT_INFO("philips bridge ip is ---%d.%d.%d.%d",(val & 0xFF000000) >> 24,(val & 0x00FF0000) >> 16,(val & 0x0000FF00) >> 8,val & 0x000000FF);
 			
 					sprintf(philips_uri,"%d.%d.%d.%d",(val & 0xFF000000) >> 24,(val & 0x00FF0000) >> 16,(val & 0x0000FF00) >> 8,val & 0x000000FF);
-					//IOT_INFO("-------%s------\n",philips_uri);
+					IOT_INFO("-------%s------\n",philips_uri);
 					//*philipsip->id=a++;
 					//strcpy(*philipsip->ip,philips_uri);
 					//strcpy(*philipsip->pname,"Philips");
@@ -1043,11 +1095,11 @@ addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
 				if(strstr(msgbuf,"NOTIFY") && strstr(msgbuf,"Belkin") && strstr(msgbuf,"http://schemas.upnp.org/upnp/1/0/")&& !strstr(msgbuf,"IpBridge"))
 				{
 					int find=0;
-					//IOT_INFO("belkin ip is ---%d.%d.%d.%d\n",(val & 0xFF000000) >> 24,(val & 0x00FF0000) >> 16,(val & 0x0000FF00) >> 8,val & 0x000000FF);
+					IOT_INFO("belkin ip is ---%d.%d.%d.%d\n",(val & 0xFF000000) >> 24,(val & 0x00FF0000) >> 16,(val & 0x0000FF00) >> 8,val & 0x000000FF);
 					char uri[15],Bel[5]="Bel";
 					int i=0;
 					sprintf(uri,"%d.%d.%d.%d",(val & 0xFF000000) >> 24,(val & 0x00FF0000) >> 16,(val & 0x0000FF00) >> 8,val & 0x000000FF);
-					//IOT_INFO("uri is : %s",uri);
+					IOT_INFO("uri is : %s",uri);
 					/*
 					if(head == NULL){
 					struct node *n1=(struct node *)malloc(sizeof(struct node));
@@ -1075,7 +1127,7 @@ addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
 					{
 						if(!strcmp(belkin_uri[i],uri))
 						{
-							//IOT_INFO("belkin_uri[%d]: {%s} is same as uri{%s}",i,belkin_uri[i],uri);
+							IOT_INFO("belkin_uri[%d]: {%s} is same as uri{%s}",i,belkin_uri[i],uri);
 							find=1;
 							break;
 						}
@@ -1085,7 +1137,7 @@ addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
 					}
 					else{ 
 						strcpy(belkin_uri[r++],uri);
-						//IOT_INFO("belkin_uri[%d] is : %s",i,belkin_uri[i]);
+						IOT_INFO("belkin_uri[%d] is : %s",i,belkin_uri[i]);
 					}
 
 
@@ -1094,14 +1146,14 @@ addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
 					{
 						if(!strcmp(belkin_uri[i],uri))
 						{
-							//IOT_INFO("belkin_uri[%d]{%s} is same as uri{%s}",i,belkin_uri[i],uri);
+							IOT_INFO("belkin_uri[%d]{%s} is same as uri{%s}",i,belkin_uri[i],uri);
 							i=10;
 						}
 				
 						else if(belkin_uri[i][0]=="\0")
 						{
 							sprintf(belkin_uri[i],"%d.%d.%d.%d",(val & 0xFF000000) >> 24,(val & 0x00FF0000) >> 16,(val & 0x0000FF00) >> 8,val & 0x000000FF);
-							//IOT_INFO("belkin_uri[%d] is : %s",i,belkin_uri[i]);
+							IOT_INFO("belkin_uri[%d] is : %s",i,belkin_uri[i]);
 							b++;
 							i=10;
 							enddevicestatus=1;
@@ -1110,7 +1162,7 @@ addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
 			
 			
 			
-					////IOT_INFO("-------%s------\n",belkin_uri[0]);
+					//IOT_INFO("-------%s------\n",belkin_uri[0]);
 					//b=1;
 					belkinipstatus=1;
 					*/
@@ -1151,12 +1203,12 @@ static int ConnectToHTTPServer(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_connect(httpClient, (struct sockaddr *)&addr, 0, NULL);
     if (lRetVal < 0)
     {
-        //IOT_INFO("Connection to server failed. error(%d)\n\r", lRetVal);
+        IOT_INFO("Connection to server failed. error(%d)\n\r", lRetVal);
        // ASSERT_ON_ERROR(SERVER_CONNECTION_FAILED);
     }    
     else
     {
-        //IOT_INFO("Connection to server created successfully\r\n");
+        IOT_INFO("Connection to server created successfully\r\n");
     }
 
     return 0;
@@ -1220,7 +1272,7 @@ static int FlushHTTPResponse(HTTPCli_Handle httpClient)
         {
             if(!strncmp(buf, "close", sizeof("close")))
             {
-                //IOT_INFO("Connection terminated by server\n\r");
+                IOT_INFO("Connection terminated by server\n\r");
             }
         }
 
@@ -1285,7 +1337,7 @@ int ParseJSONData(char *ptr)
     noOfToken = jsmn_parse(&parser, (const char *)ptr, strlen((const char *)ptr), NULL, 10);
     if(noOfToken <= 0)
     {
-    	//IOT_INFO("Failed to initialize JSON parser\n\r");
+    	IOT_INFO("Failed to initialize JSON parser\n\r");
     	return -1;
 
     }
@@ -1294,7 +1346,7 @@ int ParseJSONData(char *ptr)
     tokenList = (jsmntok_t *) malloc(noOfToken*sizeof(jsmntok_t));
     if(tokenList == NULL)
     {
-        //IOT_INFO("Failed to allocate memory\n\r");
+        IOT_INFO("Failed to allocate memory\n\r");
         return -1;
     }
 
@@ -1303,18 +1355,18 @@ int ParseJSONData(char *ptr)
     noOfToken = jsmn_parse(&parser, (const char *)ptr, strlen((const char *)ptr), tokenList, noOfToken);
     if(noOfToken < 0)
     {
-    	//IOT_INFO("Failed to parse JSON tokens\n\r");
+    	IOT_INFO("Failed to parse JSON tokens\n\r");
     	lRetVal = noOfToken;
     }
     else
     {
-    	//IOT_INFO("Successfully parsed %ld JSON tokens\n\r", noOfToken);
+    	IOT_INFO("Successfully parsed %ld JSON tokens\n\r", noOfToken);
 	int i=0;
 		
 	for(i=0;i<noOfToken;i++){	
-	////IOT_INFO("----token[%d] = ",i);
-	////IOT_INFO("----%s------\n",tokenList[i]);}
-	////IOT_INFO("parser------%s-------\n",&parser);
+	//IOT_INFO("----token[%d] = ",i);
+	//IOT_INFO("----%s------\n",tokenList[i]);}
+	//IOT_INFO("parser------%s-------\n",&parser);
 		jsmntok_t key = tokenList[i];
 		unsigned int length = key.end - key.start;
 		char keyString[length + 1];    
@@ -1323,9 +1375,9 @@ int ParseJSONData(char *ptr)
 		//if(i == noOfToken){
 		  //id_len=sizeof(keyString);
 		  //strncpy(keyString,philips_id,id_len);
-		  //IOT_INFO("i=%d\n",i);
-		  //IOT_INFO("Key: %s\n", keyString);
-		  ////IOT_INFO("my Key: %s\n", keyString[1]);
+		  IOT_INFO("i=%d\n",i);
+		  IOT_INFO("Key: %s\n", keyString);
+		  //IOT_INFO("my Key: %s\n", keyString[1]);
 		//}
 		if(philipsbulbget==1)
 		{
@@ -1333,7 +1385,7 @@ int ParseJSONData(char *ptr)
 			{
 				id_len=sizeof(keyString);
 				strncpy(philipsbulbstatus,keyString,id_len);
-				//IOT_INFO("philips bulb status: %s---\n", philipsbulbstatus);
+				IOT_INFO("philips bulb status: %s---\n", philipsbulbstatus);
 				philipssinglebulbget=1;
 			}
 			philipsbulbget=0;
@@ -1342,7 +1394,7 @@ int ParseJSONData(char *ptr)
 		if (philips_config==1){
 		if(i == noOfToken-1){
 			
-			//IOT_INFO("philips config---\n");
+			IOT_INFO("philips config---\n");
 			if((strcmp(keyString,"link button not pressed"))==0)
 			{
 				philipsidstatus=1;
@@ -1352,9 +1404,9 @@ int ParseJSONData(char *ptr)
 			{
 				id_len=sizeof(keyString);
 				strncpy(philips_id,keyString,id_len);
-				//IOT_INFO("philips id: %s---\n", philips_id);
+				IOT_INFO("philips id: %s---\n", philips_id);
                                 if (flashFiledevice("philipsid.txt",philips_id,id_len) == -1){
-					//IOT_INFO("error in file writing of philips id\n");
+					IOT_INFO("error in file writing of philips id\n");
 				}
                                  
 				philipsidstatus=2;
@@ -1367,57 +1419,57 @@ int ParseJSONData(char *ptr)
 		{
 			/*if(i/22==0){
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);			
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);			
 			}*//*
 			if(i==0)
 			{
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);	
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);	
 			}*/
 			for(i=1;i<noOfToken;i+=24)
 			{
 				jsmntok_t key = tokenList[i];
 				unsigned int length = key.end - key.start;
-				////IOT_INFO("length of the string is %d\n",length);
+				//IOT_INFO("length of the string is %d\n",length);
 				char keyString[length + 1];
 				//keyString[length] = '\0';    
 				memcpy(keyString, &((const char *)ptr)[key.start], length);
 				keyString[length] = '\0';
 		
-				//IOT_INFO("i=%d\n",i);
+				IOT_INFO("i=%d\n",i);
 				//if(i/21==0){
 				//p_bulb = (struct philips_status *)malloc(sizeof(struct philips_status));
 				//strcpy(p_bulb->bid,keyString);
-				////IOT_INFO("Key: %s\n", p_bulb->bid);
+				//IOT_INFO("Key: %s\n", p_bulb->bid);
 				//strncpy(p_bulbs.bid,keyString,strlen(keyString));
 				strncpy(philipsbulbid,keyString,strlen(keyString));
-				////IOT_INFO("Key: %s\n", p_bulbs.bid);
-				////IOT_INFO("Key: %s\n", p_bulbs.bid);
+				//IOT_INFO("Key: %s\n", p_bulbs.bid);
+				//IOT_INFO("Key: %s\n", p_bulbs.bid);
 				
-				//IOT_INFO("Key: %s\n", philipsbulbid);	
+				IOT_INFO("Key: %s\n", philipsbulbid);	
 				//}else if(i/22==0){
 			 	key = tokenList[i+1];
 				length = key.end - key.start;
-				////IOT_INFO("length of the string is %d\n",length);
+				//IOT_INFO("length of the string is %d\n",length);
 				char keyString1[length + 1];    
 				memcpy(keyString1, &((const char *)ptr)[key.start], length);
 				keyString1[length] = '\0';
 		
-				////IOT_INFO("i=%d\n",i+1);
+				//IOT_INFO("i=%d\n",i+1);
 				//strncpy(p_bulb->statuses,keyString,length);
-				////IOT_INFO("Key: %s\n", p_bulb->statuses);
+				//IOT_INFO("Key: %s\n", p_bulb->statuses);
 				//strncpy(p_bulbs.statuses,keyString,length);
-				////IOT_INFO("Key: %s\n", p_bulbs.statuses);
+				//IOT_INFO("Key: %s\n", p_bulbs.statuses);
 				strncpy(philipsbulbstatus,keyString1,length);
-				////IOT_INFO("Key: %s\n", philipsbulbstatus);
 				//IOT_INFO("Key: %s\n", philipsbulbstatus);
+				IOT_INFO("Key: %s\n", philipsbulbstatus);
 				//}
-//				//IOT_INFO("Key: %s\n", keyString);
-//				//IOT_INFO("my Key: %s\n", keyString[1]);
+//				IOT_INFO("Key: %s\n", keyString);
+//				IOT_INFO("my Key: %s\n", keyString[1]);
 				philipsgetstatus=1;
 				Task_sleep(1500);
 			}
@@ -1450,7 +1502,7 @@ int getParseJSONData(char *ptr)
     noOfToken = jsmn_parse(&parser, (const char *)ptr, strlen((const char *)ptr), NULL, 10);
     if(noOfToken <= 0)
     {
-    	//IOT_INFO("Failed to initialize JSON parser\n\r");
+    	IOT_INFO("Failed to initialize JSON parser\n\r");
     	return -1;
 
     }
@@ -1459,7 +1511,7 @@ int getParseJSONData(char *ptr)
     tokenList = (jsmntok_t *) malloc(noOfToken*sizeof(jsmntok_t));
     if(tokenList == NULL)
     {
-        //IOT_INFO("Failed to allocate memory\n\r");
+        IOT_INFO("Failed to allocate memory\n\r");
         return -1;
     }
 
@@ -1468,12 +1520,12 @@ int getParseJSONData(char *ptr)
     noOfToken = jsmn_parse(&parser, (const char *)ptr, strlen((const char *)ptr), tokenList, noOfToken);
     if(noOfToken < 0)
     {
-    	//IOT_INFO("Failed to parse JSON tokens\n\r");
+    	IOT_INFO("Failed to parse JSON tokens\n\r");
     	lRetVal = noOfToken;
     }
     else
     {
-    	//IOT_INFO("Successfully parsed %ld JSON tokens\n\r", noOfToken);
+    	IOT_INFO("Successfully parsed %ld JSON tokens\n\r", noOfToken);
 	int i=1;
 	
 		
@@ -1485,11 +1537,11 @@ int getParseJSONData(char *ptr)
 		memcpy(keyString, &((const char *)ptr)[key.start], length);
 		keyString[length] = '\0';
 		
-		//IOT_INFO("i=%d\n",i);
+		IOT_INFO("i=%d\n",i);
 		//if(i/21==0){
 				strncpy(p_bulb->bid,keyString,length+1);
-				//IOT_INFO("Key: %s\n", p_bulb->bid);
-				//IOT_INFO("Key: %s\n", keyString);	
+				IOT_INFO("Key: %s\n", p_bulb->bid);
+				IOT_INFO("Key: %s\n", keyString);	
 		//}else if(i/22==0){
 			 key = tokenList[i+1];
 		 length = key.end - key.start;
@@ -1497,13 +1549,13 @@ int getParseJSONData(char *ptr)
 		memcpy(keyString, &((const char *)ptr)[key.start], length);
 		keyString[length] = '\0';
 		
-		//IOT_INFO("i=%d\n",i+1);
+		IOT_INFO("i=%d\n",i+1);
 			strncpy(p_bulb->statuses,keyString,length+1);
-			//IOT_INFO("Key: %s\n", p_bulb->statuses);
-			//IOT_INFO("Key: %s\n", keyString);
+			IOT_INFO("Key: %s\n", p_bulb->statuses);
+			IOT_INFO("Key: %s\n", keyString);
 		//}
-//		//IOT_INFO("Key: %s\n", keyString);
-//		//IOT_INFO("my Key: %s\n", keyString[1]);
+//		IOT_INFO("Key: %s\n", keyString);
+//		IOT_INFO("my Key: %s\n", keyString[1]);
 		
 	}
     }
@@ -1550,7 +1602,7 @@ static int readResponse(HTTPCli_Handle httpClient)
 		{
 		case 200:
 		{
-			//IOT_INFO("HTTP Status 200\n\r");
+			IOT_INFO("HTTP Status 200\n\r");
 			/*
                  Set response header fields to filter response headers. All
                   other than set by this call we be skipped by library.
@@ -1573,38 +1625,38 @@ static int readResponse(HTTPCli_Handle httpClient)
 			{
 
 				
-				//IOT_INFO("data in while---%s--%d--\n",(const char *)g_buff,sizeof(g_buff));
-				//IOT_INFO("Switch Case...%d..\n",id);
+				IOT_INFO("data in while---%s--%d--\n",(const char *)g_buff,sizeof(g_buff));
+				IOT_INFO("Switch Case...%d..\n",id);
 				len = strtoul((char *)g_buff, NULL, 0);
-				//IOT_INFO("len in outside of switch case is %d \n",len);
-				////IOT_INFO("len in case0 -----%d-----\n",len);
-				////IOT_INFO();
+				IOT_INFO("len in outside of switch case is %d \n",len);
+				//IOT_INFO("len in case0 -----%d-----\n",len);
+				//IOT_INFO();
 				len = sizeof(g_buff);
-                                //IOT_INFO("len in outside of switch case ater size of g_buff is %d \n",len);
+                                IOT_INFO("len in outside of switch case ater size of g_buff is %d \n",len);
 				switch(id)
 				{
 				case 0: /* HTTPCli_FIELD_NAME_CONTENT_LENGTH */
 				{
 					len = strtoul((char *)g_buff, NULL, 0);
-					//IOT_INFO("len in case0 -----%d-----\n",len);
+					IOT_INFO("len in case0 -----%d-----\n",len);
 				}
 				break;
 				case 1: /* HTTPCli_FIELD_NAME_CONNECTION */
 				{
-					//IOT_INFO(" CASE 1 ");
+					IOT_INFO(" CASE 1 ");
 				}
 				break;
 				case 2: /* HTTPCli_FIELD_NAME_CONTENT_TYPE */
 				{
-					//IOT_INFO(" CASE 2 ");
+					IOT_INFO(" CASE 2 ");
 					//len = strtoul((char *)g_buff, NULL, 10);
-					////IOT_INFO("len in case2 -----%d-----\n",len);
-					//IOT_INFO("vinay---%s---\n",(const char *)g_buff);
+					//IOT_INFO("len in case2 -----%d-----\n",len);
+					IOT_INFO("vinay---%s---\n",(const char *)g_buff);
 					if(!strncmp((const char *)g_buff, "application/json",
 							sizeof("application/json")))
 					{
 						json = 1;
-						//IOT_INFO("it is in json format");
+						IOT_INFO("it is in json format");
 					}
 					else
 					{
@@ -1615,38 +1667,38 @@ static int readResponse(HTTPCli_Handle httpClient)
 						 */
 						json = 0;
 					}
-					//IOT_INFO(HTTPStd_FIELD_NAME_CONTENT_TYPE);
-					//IOT_INFO(" : ");
-					//IOT_INFO("application/json\n\r");
+					IOT_INFO(HTTPStd_FIELD_NAME_CONTENT_TYPE);
+					IOT_INFO(" : ");
+					IOT_INFO("application/json\n\r");
 					
 				}
 				break;
 				default:
 				{
-					//IOT_INFO("Wrong filter id\n\r");
+					IOT_INFO("Wrong filter id\n\r");
 					lRetVal = -1;
 					goto end;
 				}
 				}
 			}
-			//IOT_INFO("1. Struck at application/json\n\r");
+			IOT_INFO("1. Struck at application/json\n\r");
 			bytesRead = 0;
 			if(len > sizeof(g_buff))
 			//if(len < sizeof(g_buff))
 			{
-				//IOT_INFO("2. Struck at application/json\n\r");
+				IOT_INFO("2. Struck at application/json\n\r");
 				dataBuffer = (char *) malloc(len);
 				if(dataBuffer)
 				{
-					//IOT_INFO("3. Struck at application/json\n\r");
-					//IOT_INFO("Failed to allocate memory\n\r");
+					IOT_INFO("3. Struck at application/json\n\r");
+					IOT_INFO("Failed to allocate memory\n\r");
 					lRetVal = -1;
 					goto end;
 				}
 			}
 			else
 			{
-				//IOT_INFO("4. Struck at application/json\n\r");
+				IOT_INFO("4. Struck at application/json\n\r");
 				dataBuffer = (char *)g_buff;
 			}
 
@@ -1660,30 +1712,30 @@ static int readResponse(HTTPCli_Handle httpClient)
 
 			 */
 			//bytesRead = HTTPCli_readResponseBody(httpClient, (char *)dataBuffer, len, &moreFlags);
-			//IOT_INFO(" %s... \n",(char *)dataBuffer);
-			//IOT_INFO(" %d... \n",len);
+			IOT_INFO(" %s... \n",(char *)dataBuffer);
+			IOT_INFO(" %d... \n",len);
 			bytesRead = HTTPCli_readRawResponseBody(httpClient, (char *)dataBuffer, len);
-			//IOT_INFO(" %d... \n",bytesRead);
+			IOT_INFO(" %d... \n",bytesRead);
 			/*if(bytesRead < 0)
 			{
-				//IOT_INFO("Failed to received response body\n\r");
+				IOT_INFO("Failed to received response body\n\r");
 				lRetVal = bytesRead;
 				goto end;
 			}
 			else if( bytesRead < len || moreFlags)
 			{
-				//IOT_INFO("Mismatch in content length and received data length\n\r");
+				IOT_INFO("Mismatch in content length and received data length\n\r");
 				goto end;
 			}*/
 			dataBuffer[bytesRead] = '\0';
-			//IOT_INFO("5. Struck at application/json\n\r");
+			IOT_INFO("5. Struck at application/json\n\r");
 
 			if(json)
 			{
-				//IOT_INFO("----%s-----\n",dataBuffer);
+				IOT_INFO("----%s-----\n",dataBuffer);
 				/* Parse JSON data */
 				//char *dummydata = "{\"on\":false}";
-				////IOT_INFO("------%s----\n",dummydata);
+				//IOT_INFO("------%s----\n",dummydata);
 				//lRetVal = ParseJSONData(dummydata);
 				//if(lRetVal < 0)
 				//{
@@ -1699,25 +1751,25 @@ static int readResponse(HTTPCli_Handle httpClient)
 			else
 			{
 				/* treating data as a plain text */
-				////IOT_INFO("The plain text is:----%s-----\n",dataBuffer);
-				//IOT_INFO("The plain text is not a JSON formate-----\n");
+				//IOT_INFO("The plain text is:----%s-----\n",dataBuffer);
+				IOT_INFO("The plain text is not a JSON formate-----\n");
 			}
 
 		}
 		break;
 
 		case 404:
-			//IOT_INFO("File not found. \r\n");
+			IOT_INFO("File not found. \r\n");
 			break;
 		default:
-			//IOT_INFO("IN DEFAULT STATE.... \r\n");
+			IOT_INFO("IN DEFAULT STATE.... \r\n");
 			FlushHTTPResponse(httpClient);
 			break;
 		}
 	}
 	else
 	{
-		//IOT_INFO("Failed to receive data from server.\r\n");
+		IOT_INFO("Failed to receive data from server.\r\n");
 		goto end;
 	}
 
@@ -1769,7 +1821,7 @@ static int philipsconfig(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendRequest(httpClient, HTTPStd_POST, vinayuri, moreFlags);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP POST request header.\n\r");
+        IOT_INFO("Failed to send HTTP POST request header.\n\r");
         return lRetVal;
     }
 
@@ -1782,17 +1834,17 @@ static int philipsconfig(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendField(httpClient, HTTPStd_FIELD_NAME_CONTENT_LENGTH, (const char *)tmpBuf, lastFlag);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP POST request header.\n\r");
+        IOT_INFO("Failed to send HTTP POST request header.\n\r");
         return lRetVal;
     }
 
 
     /* Send POST data/body */
     lRetVal = HTTPCli_sendRequestBody(httpClient, CONFIG_DATA, (sizeof(CONFIG_DATA)-1));
-    //IOT_INFO(CONFIG_DATA);
+    IOT_INFO(CONFIG_DATA);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP POST request body.\n\r");
+        IOT_INFO("Failed to send HTTP POST request body.\n\r");
         return lRetVal;
     }
 
@@ -1831,7 +1883,7 @@ static int HTTPPutMethod(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendRequest(httpClient, HTTPStd_PUT, philips_request_uri, moreFlags);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP PUT request header.\n\r");
+        IOT_INFO("Failed to send HTTP PUT request header.\n\r");
         return lRetVal;
     }
     sprintf((char *)tmpBuf, "%d", (sizeof(PUT_DATA)-1));
@@ -1843,7 +1895,7 @@ static int HTTPPutMethod(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendField(httpClient, HTTPStd_FIELD_NAME_CONTENT_LENGTH, (char *)tmpBuf, lastFlag);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP PUT request header.\n\r");
+        IOT_INFO("Failed to send HTTP PUT request header.\n\r");
         return lRetVal;
     }
 
@@ -1851,7 +1903,7 @@ static int HTTPPutMethod(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendRequestBody(httpClient, PUT_DATA, (sizeof(PUT_DATA)-1));
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP PUT request body.\n\r");
+        IOT_INFO("Failed to send HTTP PUT request body.\n\r");
         return lRetVal;
     }
 
@@ -1892,7 +1944,7 @@ static int HTTPPutMethodon(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendRequest(httpClient, HTTPStd_PUT, philips_request_uri, moreFlags);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP PUT request header.\n\r");
+        IOT_INFO("Failed to send HTTP PUT request header.\n\r");
         return lRetVal;
     }
     sprintf((char *)tmpBuf, "%d", (sizeof(PUT_DATA1)-1));
@@ -1906,7 +1958,7 @@ static int HTTPPutMethodon(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendField(httpClient, HTTPStd_FIELD_NAME_CONTENT_LENGTH, (char *)tmpBuf, lastFlag);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP PUT request header.\n\r");
+        IOT_INFO("Failed to send HTTP PUT request header.\n\r");
         return lRetVal;
     }
 
@@ -1914,7 +1966,7 @@ static int HTTPPutMethodon(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendRequestBody(httpClient, PUT_DATA1, (sizeof(PUT_DATA1)-1));
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP PUT request body.\n\r");
+        IOT_INFO("Failed to send HTTP PUT request body.\n\r");
         return lRetVal;
 
     }
@@ -1962,7 +2014,7 @@ static int HTTPPostMethod(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendRequest(httpClient, HTTPStd_POST, POST_REQUEST_URI, moreFlags);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP POST request header.\n\r");
+        IOT_INFO("Failed to send HTTP POST request header.\n\r");
         return lRetVal;
     }
 
@@ -1975,17 +2027,17 @@ static int HTTPPostMethod(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendField(httpClient, HTTPStd_FIELD_NAME_CONTENT_LENGTH, (const char *)tmpBuf, lastFlag);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP POST request header.\n\r");
+        IOT_INFO("Failed to send HTTP POST request header.\n\r");
         return lRetVal;
     }
 
 
     /* Send POST data/body */
     lRetVal = HTTPCli_sendRequestBody(httpClient, POST_DATA, (sizeof(POST_DATA)-1));
-    //IOT_INFO(POST_DATA);
+    IOT_INFO(POST_DATA);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP POST request body.\n\r");
+        IOT_INFO("Failed to send HTTP POST request body.\n\r");
         return lRetVal;
     }
 
@@ -2026,7 +2078,7 @@ static int HTTPPostMethodon(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendRequest(httpClient, HTTPStd_POST, POST_REQUEST_URI, moreFlags);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP POST request header.\n\r");
+        IOT_INFO("Failed to send HTTP POST request header.\n\r");
         return lRetVal;
     }
 
@@ -2039,17 +2091,17 @@ static int HTTPPostMethodon(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendField(httpClient, HTTPStd_FIELD_NAME_CONTENT_LENGTH, (const char *)tmpBuf, lastFlag);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP POST request header.\n\r");
+        IOT_INFO("Failed to send HTTP POST request header.\n\r");
         return lRetVal;
     }
 
 
     /* Send POST data/body */
     lRetVal = HTTPCli_sendRequestBody(httpClient, POST_DATA1, (sizeof(POST_DATA1)-1));
-    //IOT_INFO(POST_DATA);
+    IOT_INFO(POST_DATA);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP POST request body.\n\r");
+        IOT_INFO("Failed to send HTTP POST request body.\n\r");
         return lRetVal;
     }
 
@@ -2096,7 +2148,7 @@ static int HTTPGetMethod(HTTPCli_Handle httpClient)
     lRetVal = HTTPCli_sendRequest(httpClient, HTTPStd_GET, philips_request_uri, moreFlags);
     if(lRetVal < 0)
     {
-        //IOT_INFO("Failed to send HTTP GET request.\n\r");
+        IOT_INFO("Failed to send HTTP GET request.\n\r");
         return lRetVal;
     }
 
@@ -2166,9 +2218,9 @@ else if (ch_no == 4)
 	if(MAP_ADCFIFOLvlGet(ADC_BASE, uiChannel)){
 
 	        unsigned long ulSample = MAP_ADCFIFORead(ADC_BASE, uiChannel);
-		//IOT_INFO("%lu\n",ulSample);
-		//IOT_INFO("%f...\n",(float)((ulSample >> 2 ) & 0x0FFF));
-		//IOT_INFO("\n\rVoltage is %f\n\r",(((float)((ulSample >> 2 ) & 0x0FFF))*1.467)/4096);
+		IOT_INFO("%lu\n",ulSample);
+		IOT_INFO("%f...\n",(float)((ulSample >> 2 ) & 0x0FFF));
+		IOT_INFO("\n\rVoltage is %f\n\r",(((float)((ulSample >> 2 ) & 0x0FFF))*1.467)/4096);
 		pw=(((float)((ulSample >> 2 ) & 0x0FFF))*1.467)/4096;
 		//VinOpAmp=pw/91; I=V/R=VinOpAmp/Sensing resister; Irms=I/sqrtof(2); Vrms=77 for 120Volts AC; pw=Vrms*Irms;
 		pw=(((((pw*2)/91)/0.005)/1.4142)*77);	
@@ -2183,18 +2235,19 @@ void MQTTcallbackHandler(AWS_IoT_Client *pClient, char *topicName,
         uint16_t topicNameLen, IoT_Publish_Message_Params *params, void *pData)
 {
 	//int status=0;
-    //IOT_INFO("Subscribe callback");
-    //IOT_INFO("%.*s\t%.*s",topicNameLen, topicName, (int)params->payloadLen,(char *)params->payload);
+    IOT_INFO("Subscribe callback");
+    IOT_INFO("%.*s\t%.*s",topicNameLen, topicName, (int)params->payloadLen,
+            (char *)params->payload);
 	strncpy(dexterpistring,(char *)params->payload,(int)params->payloadLen);
-	//IOT_INFO("dexterpistring in mqtt handler is : %s\n",dexterpistring);
+	IOT_INFO("dexterpistring in mqtt handler is : %s\n",dexterpistring);
 	size = (int)params->payloadLen;
 }
 
-    ////IOT_INFO("%d",(int)params->payloadLen);
-   // //IOT_INFO("%s",(char *)params->payload);
+    //IOT_INFO("%d",(int)params->payloadLen);
+   // IOT_INFO("%s",(char *)params->payload);
 
     //size = (int)params->payloadLen;
-   // //IOT_INFO("--------%d------\n",size);
+   // IOT_INFO("--------%d------\n",size);
     //const char *string = ((char *)params->payload);
 ///added for ota////////////
 int updateota(void)
@@ -2211,10 +2264,10 @@ long lRetVal = -1;
 
 	sl_extLib_OtaGet(pvOtaApp,EXTLIB_OTA_GET_OPT_IS_PENDING_COMMIT,
                          &OptionLen,&OptionVal);
-	//IOT_INFO("EXTLIB_OTA_GET_OPT_IS_PENDING_COMMIT? %d \n\r",OptionVal);
+	IOT_INFO("EXTLIB_OTA_GET_OPT_IS_PENDING_COMMIT? %d \n\r",OptionVal);
 	if(OptionVal == true)
 		{
-		//IOT_INFO("ota: pending comit & wlan ok ==> perform comit \n\r");
+		IOT_INFO("ota: pending comit & wlan ok ==> perform comit \n\r");
 		SetCommitInt = OTA_ACTION_IMAGE_COMMITED;
 		sl_extLib_OtaSet(pvOtaApp, EXTLIB_OTA_SET_OPT_IMAGE_COMMIT,
                              sizeof(int), (_u8 *)&SetCommitInt);
@@ -2222,28 +2275,28 @@ long lRetVal = -1;
 		}
 	else
 		{
-		//IOT_INFO("starting ota\n\r");
+		IOT_INFO("starting ota\n\r");
 		lRetVal = 0;
 		while(!lRetVal)
 			{
 			lRetVal = sl_extLib_OtaRun(pvOtaApp);
 			}
-		//IOT_INFO("ota run = %d\n\r", lRetVal);
+		IOT_INFO("ota run = %d\n\r", lRetVal);
 		if(lRetVal < 0)
 			{
-			//IOT_INFO("ota: error with ota server\n\r");
+			IOT_INFO("ota: error with ota server\n\r");
 			}
 		else if (lRetVal == RUN_STAT_NO_UPDATES)
 			{
-			//IOT_INFO("ota: run stat no updates\n\r");
+			IOT_INFO("ota: run stat no updates\n\r");
 			return 0;
 			}
 		else if ((lRetVal & RUN_STAT_DOWNLOAD_DONE))
 			{
 			lRetVal = sl_extLib_OtaSet(pvOtaApp, EXTLIB_OTA_SET_OPT_IMAGE_TEST,
                                     sizeof(int), (_u8 *)&SetCommitInt);
-			//IOT_INFO("ota: new image download complete\n\r");
-			//IOT_INFO("rebooting...");
+			IOT_INFO("ota: new image download complete\n\r");
+			IOT_INFO("rebooting...");
 			RebootMCU();
 			}
 		}
@@ -2256,7 +2309,7 @@ while(1)
 {
 if (dexterpistring[0] != "\0")
 {
-//IOT_INFO(". : %s\n",dexterpistring);
+IOT_INFO(". : %s\n",dexterpistring);
 //int size = (int)sizeof(dexterpistring);
     char string[size];
     //char string1[size];
@@ -2266,11 +2319,8 @@ if (dexterpistring[0] != "\0")
     //memset(string, '\0', sizeof(string));
     strcpy(string,dexterpistring);
     strncat(string, " ", size+1);
-    ////IOT_INFO("vinay----%s------\n",string);
+    //IOT_INFO("vinay----%s------\n",string);
 if(!strncmp(dexterpistring ,"gpio", 4)){
-  if(size >= 50){
-	continue;
-	}
  const char s[2] = " ";
    char *token;
    
@@ -2288,83 +2338,11 @@ if(!strncmp(dexterpistring ,"gpio", 4)){
     
       token = strtok(NULL, s);
    }
-   //IOT_INFO("---%s-----\n",word[4]);
+   IOT_INFO("---%s-----\n",word[4]);
    //for(dummy=0;dummy<=dummy2;dummy++){
 	//if(word[dummy] == "from"){
          strcpy(userid,word[4]);//}}
-   //IOT_INFO("userid---%s-----\n",userid);
-if(!strncmp(dexterpistring ,"gpio 1 on", 9)){
-	GPIOPinWrite(GPIOA1_BASE, 0x10, 0x10);
-	PWR1=1;
-	ch = 1;
-	status=1;//variable=0;
-	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
-
- }
-
- if(!strncmp(dexterpistring ,"gpio 2 on", 9)){
-	GPIOPinWrite(GPIOA1_BASE, 0x8, 0x8);
-	PWR2=1;
-	ch =2;//variable=0;
-	status = 1;
-	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
-}
-
- if(!strncmp(dexterpistring ,"gpio 3 on", 9)){
-        GPIOPinWrite(GPIOA1_BASE, 0x80, 0x80);
-        PWR3=1;
-	ch =3;//variable=0;
-	status = 1;
-	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
- }
-
- if(!strncmp(dexterpistring ,"gpio 4 on", 9)){
-        GPIOPinWrite(GPIOA3_BASE, 0x10, 0x10);
-        PWR4=1;
-	ch=4;//variable=0;
-	status = 1;
-	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
- } 
-
- if(!strncmp(dexterpistring ,"gpio 1 off", 10)){
-	GPIOPinWrite(GPIOA1_BASE, 0x10, 0x0);
-        PWR1=0;
-        ch =1;//variable=1;
-	status = 0;
-	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
- }
-
- if(!strncmp(dexterpistring ,"gpio 2 off", 10)){
-	GPIOPinWrite(GPIOA1_BASE, 0x8, 0x0);
-        PWR2=0;
-        ch=2;//variable=1;
-	status = 0;
-	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
- }
-
- if(!strncmp(dexterpistring ,"gpio 3 off ", 10)){
-        GPIOPinWrite(GPIOA1_BASE, 0x80, 0x0);
-        PWR3=0;
-        ch=3;//variable=1;
-	status = 0;
-	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
- }
-
- if(!strncmp(dexterpistring ,"gpio 4 off", 10)){
-        GPIOPinWrite(GPIOA3_BASE, 0x10, 0x0);
-        PWR4=0;
-        ch=4;//variable=1;
-	status = 0;
-	sstartNTP();
-	//IOT_INFO("----current time = %s-----",timeslap);
- } 
+   IOT_INFO("userid---%s-----\n",userid);
 }
 
 if(!strncmp(dexterpistring ,"philips", 7)){
@@ -2385,7 +2363,7 @@ if(!strncmp(dexterpistring ,"philips", 7)){
     
       token = strtok(NULL, s);
    }
-   //IOT_INFO("---%s-----\n",word[2]);
+   IOT_INFO("---%s-----\n",word[2]);
    //for(dummy=0;dummy<=dummy2;dummy++){  {\"on\":true,\"sat\":254,"\bri\":254,\"hue\":10000}
 	//if(word[dummy] == "from"){
 	char philipsmessage[52];
@@ -2393,15 +2371,15 @@ if(!strncmp(dexterpistring ,"philips", 7)){
          strcpy(philipsmessage,word[2]);//}}
 	 strcpy(id,word[1]);
 	strcpy(bulbnumber,word[1]);
-   //IOT_INFO("philips bulb id---%s-----\n",id);
-   //IOT_INFO("philipsmessage---%s-----\n",philipsmessage);
+   IOT_INFO("philips bulb id---%s-----\n",id);
+   IOT_INFO("philipsmessage---%s-----\n",philipsmessage);
 
 strcpy(HOST_NAME,philips_uri);
 HOST_PORT = 80;
 sprintf(philips_request_uri,"/api/%s/lights/%s/state",philips_id,id);
 long lRetVal = -1;
 sprintf(PUT_DATA,"%s",philipsmessage);
-//IOT_INFO("put data is %s\n",PUT_DATA);
+IOT_INFO("put data is %s\n",PUT_DATA);
     HTTPCli_Struct httpClient1;
 
 
@@ -2415,29 +2393,29 @@ sprintf(PUT_DATA,"%s",philipsmessage);
         LOOP_FOREVER();
     }
 */
-    //IOT_INFO("\n\r");
+    IOT_INFO("\n\r");
 
- //IOT_INFO("HTTP Put Begin:\n\r");
+ IOT_INFO("HTTP Put Begin:\n\r");
 
     lRetVal = HTTPPutMethod(&httpClient1);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Put failed.\n\r");
+    	IOT_INFO("HTTP Put failed.\n\r");
     }
-    //IOT_INFO("HTTP Put End:\n\r");
+    IOT_INFO("HTTP Put End:\n\r");
     HTTPCli_disconnect(&httpClient1);
 /*/////////added for get//////
 philipsget=1;
 sprintf(philips_request_uri,"/api/%s/lights",philips_id);
 lRetVal = ConnectToHTTPServer(&httpClient);
 
-//IOT_INFO("HTTP Get Begin:\n\r");
+IOT_INFO("HTTP Get Begin:\n\r");
     lRetVal = HTTPGetMethod(&httpClient);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Post Get failed.\n\r");
+    	IOT_INFO("HTTP Post Get failed.\n\r");
     }
-    //IOT_INFO("HTTP Get End:\n\r");
+    IOT_INFO("HTTP Get End:\n\r");
 
 //////////*/
 //Task_sleep(1000);
@@ -2446,13 +2424,13 @@ HTTPCli_Struct httpClient10;
 sprintf(philips_request_uri,"/api/%s/lights/%s",philips_id,id);
 lRetVal = ConnectToHTTPServer(&httpClient10);
 
-//IOT_INFO("HTTP Get Begin:\n\r");
+IOT_INFO("HTTP Get Begin:\n\r");
     lRetVal = HTTPGetMethod(&httpClient10);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Post Get failed.\n\r");
+    	IOT_INFO("HTTP Post Get failed.\n\r");
     }
-    //IOT_INFO("HTTP Get End:\n\r");
+    IOT_INFO("HTTP Get End:\n\r");
    HTTPCli_disconnect(&httpClient10);
 
 }
@@ -2476,15 +2454,15 @@ if(!strncmp(dexterpistring ,"Belkin", 6)){
     
       token = strtok(NULL, s);
    }
-   ////IOT_INFO("---%s-----\n",word[4]);
+   //IOT_INFO("---%s-----\n",word[4]);
    //for(dummy=0;dummy<=dummy2;dummy++){
 	//if(word[dummy] == "from"){
         // strcpy(userid,word[4]);//}}
-   ////IOT_INFO("userid---%s-----\n",userid);
+   //IOT_INFO("userid---%s-----\n",userid);
 
 belkin_number=atoi(word[1]);
-//IOT_INFO("belkin number=%d\n",belkin_number);
-//IOT_INFO("Belkin Function Call...\n");
+IOT_INFO("belkin number=%d\n",belkin_number);
+IOT_INFO("Belkin Function Call...\n");
 long lRetVal = -1;
 strcpy(HOST_NAME,belkin_uri[belkin_number-1]);
 HOST_PORT = 49153;
@@ -2504,8 +2482,8 @@ HOST_PORT = 49153;
     }
 
 */
-    //IOT_INFO("\n\r");
-     //IOT_INFO("HTTP Post Begin:\n\r");
+    IOT_INFO("\n\r");
+     IOT_INFO("HTTP Post Begin:\n\r");
     if(!strcmp(word[2],"on")){
     strcpy(belkinstatus[belkin_number-1],"1");
     lRetVal = HTTPPostMethodon(&httpClient2);}
@@ -2514,16 +2492,87 @@ HOST_PORT = 49153;
     lRetVal = HTTPPostMethod(&httpClient2);}
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Post failed.\n\r");
+    	IOT_INFO("HTTP Post failed.\n\r");
     }
-    //IOT_INFO("HTTP Post End:\n\r");
+    IOT_INFO("HTTP Post End:\n\r");
     HTTPCli_disconnect(&httpClient2);
     enddevicestatus=1;
 }
 
- 
+ if(!strncmp(dexterpistring ,"gpio 1 on", 9)){
+	GPIOPinWrite(GPIOA1_BASE, 0x10, 0x10);
+	PWR1=1;
+	ch = 1;
+	status=1;//variable=0;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+
+ }
+
+ if(!strncmp(dexterpistring ,"gpio 2 on", 9)){
+	GPIOPinWrite(GPIOA1_BASE, 0x8, 0x8);
+	PWR2=1;
+	ch =2;//variable=0;
+	status = 1;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+}
+
+ if(!strncmp(dexterpistring ,"gpio 3 on", 9)){
+        GPIOPinWrite(GPIOA1_BASE, 0x80, 0x80);
+        PWR3=1;
+	ch =3;//variable=0;
+	status = 1;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ }
+
+ if(!strncmp(dexterpistring ,"gpio 4 on", 9)){
+        GPIOPinWrite(GPIOA3_BASE, 0x10, 0x10);
+        PWR4=1;
+	ch=4;//variable=0;
+	status = 1;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ } 
+
+ if(!strncmp(dexterpistring ,"gpio 1 off", 10)){
+	GPIOPinWrite(GPIOA1_BASE, 0x10, 0x0);
+        PWR1=0;
+        ch =1;//variable=1;
+	status = 0;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ }
+
+ if(!strncmp(dexterpistring ,"gpio 2 off", 10)){
+	GPIOPinWrite(GPIOA1_BASE, 0x8, 0x0);
+        PWR2=0;
+        ch=2;//variable=1;
+	status = 0;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ }
+
+ if(!strncmp(dexterpistring ,"gpio 3 off ", 10)){
+        GPIOPinWrite(GPIOA1_BASE, 0x80, 0x0);
+        PWR3=0;
+        ch=3;//variable=1;
+	status = 0;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ }
+
+ if(!strncmp(dexterpistring ,"gpio 4 off", 10)){
+        GPIOPinWrite(GPIOA3_BASE, 0x10, 0x0);
+        PWR4=0;
+        ch=4;//variable=1;
+	status = 0;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ } 
  if(!strncmp(dexterpistring ,"discover", 8)){
-	//IOT_INFO("----Discover-----");
+	IOT_INFO("----Discover-----");
 	//sri_recev();	
 	//discover();
 	//vinayudp();
@@ -2532,15 +2581,15 @@ HOST_PORT = 49153;
 	        
  }
  if(!strncmp(dexterpistring ,"multicast", 9)){
-	//IOT_INFO("----SENDMULTICAST-----");
+	IOT_INFO("----SENDMULTICAST-----");
 	//SendMulticast();
  }
 /* if(!strncmp((char *)params->payload ,"multi", 5)){
-	//IOT_INFO("----SENDRevice-----");
+	IOT_INFO("----SENDRevice-----");
 recievepack();
 }*/
  if(!strncmp(dexterpistring ,"demouser", 8)){
-	//IOT_INFO("----SENDRevice-----");
+	IOT_INFO("----SENDRevice-----");
 //recievepack();
 }
 
@@ -2549,14 +2598,14 @@ HTTPCli_Struct httpClient3;
 long lRetVal = -1;
 philipsget=1;
 //enddevicestatus=1;
-//IOT_INFO("philips Function Call...\n");
+IOT_INFO("philips Function Call...\n");
 //getip();
 strcpy(HOST_NAME,philips_uri);
 HOST_PORT = 80;
-//IOT_INFO("philips get uri before :  %s\n",philips_request_uri);
+IOT_INFO("philips get uri before :  %s\n",philips_request_uri);
 sprintf(philips_request_uri,"/api/%s/lights",philips_id);
-//IOT_INFO("philips get uri after :  %s\n",philips_request_uri);
-////IOT_INFO("philips get uri after ...");
+IOT_INFO("philips get uri after :  %s\n",philips_request_uri);
+//IOT_INFO("philips get uri after ...");
     //
     // Board Initialization
     //
@@ -2567,30 +2616,30 @@ lRetVal = ConnectToHTTPServer(&httpClient3);
         LOOP_FOREVER();
     }
 */
-    //IOT_INFO("\n\r");
+    IOT_INFO("\n\r");
 
-/* //IOT_INFO("HTTP Put Begin:\n\r");
+/* IOT_INFO("HTTP Put Begin:\n\r");
 
     lRetVal = HTTPPutMethod(&httpClient);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Put failed.\n\r");
+    	IOT_INFO("HTTP Put failed.\n\r");
     }
-    //IOT_INFO("HTTP Put End:\n\r");
+    IOT_INFO("HTTP Put End:\n\r");
 */
-//IOT_INFO("HTTP Get Begin:\n\r");
+IOT_INFO("HTTP Get Begin:\n\r");
     lRetVal = HTTPGetMethod(&httpClient3);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Post Get failed.\n\r");
+    	IOT_INFO("HTTP Post Get failed.\n\r");
     }
-    //IOT_INFO("HTTP Get End:\n\r");
+    IOT_INFO("HTTP Get End:\n\r");
     HTTPCli_disconnect(&httpClient3);
 philipsgetbulbsstatus = 0;
 }
 
     if(!strncmp(dexterpistring ,"philps off", 10)){
-//IOT_INFO("philips Function Call...\n");
+IOT_INFO("philips Function Call...\n");
 //getip();
 strcpy(HOST_NAME,philips_uri);
 HOST_PORT = 80;
@@ -2609,22 +2658,22 @@ long lRetVal = -1;
         LOOP_FOREVER();
     }
 */
-    //IOT_INFO("\n\r");
+    IOT_INFO("\n\r");
 
- //IOT_INFO("HTTP Put Begin:\n\r");
+ IOT_INFO("HTTP Put Begin:\n\r");
 
     lRetVal = HTTPPutMethod(&httpClient4);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Put failed.\n\r");
+    	IOT_INFO("HTTP Put failed.\n\r");
     }
-    //IOT_INFO("HTTP Put End:\n\r");
+    IOT_INFO("HTTP Put End:\n\r");
 
 
 }
 
     if(!strncmp(dexterpistring ,"philps on", 9)){
-//IOT_INFO("philips Function Call...\n");
+IOT_INFO("philips Function Call...\n");
 //getip();
 strcpy(HOST_NAME,philips_uri);
 HOST_PORT = 80;
@@ -2646,20 +2695,20 @@ long lRetVal = -1;
     }
 
 */
-    //IOT_INFO("\n\r");
+    IOT_INFO("\n\r");
 
- //IOT_INFO("HTTP Put Begin:\n\r");
+ IOT_INFO("HTTP Put Begin:\n\r");
 
     lRetVal = HTTPPutMethodon(&httpClient5);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Put failed.\n\r");
+    	IOT_INFO("HTTP Put failed.\n\r");
     }
-    //IOT_INFO("HTTP Put End:\n\r"); 
+    IOT_INFO("HTTP Put End:\n\r"); 
 }
 
     if(!strncmp(dexterpistring ,"config philips", 14)){
-//IOT_INFO("philips config Call...\n");
+IOT_INFO("philips config Call...\n");
 //enddevicestatus=1;
 philips_config=1;
 long lRetVal = -1;
@@ -2682,14 +2731,14 @@ sprintf(philips_request_uri,"/api");
     }
 
 */
-    //IOT_INFO("\n\r");
-     //IOT_INFO("HTTP Post Begin:\n\r");
+    IOT_INFO("\n\r");
+     IOT_INFO("HTTP Post Begin:\n\r");
     lRetVal = philipsconfig(&httpClient6);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Post failed.\n\r");
+    	IOT_INFO("HTTP Post failed.\n\r");
     }
-    //IOT_INFO("HTTP Post End:\n\r");
+    IOT_INFO("HTTP Post End:\n\r");
     HTTPCli_disconnect(&httpClient6);
 philipsconfigstatus=1;
 if (philipsidstatus==2)
@@ -2700,20 +2749,20 @@ HTTPCli_Struct httpClient7;
 sprintf(philips_request_uri,"/api/%s/lights",philips_id);
 lRetVal = ConnectToHTTPServer(&httpClient7);
 
-//IOT_INFO("HTTP Get Begin:\n\r");
+IOT_INFO("HTTP Get Begin:\n\r");
     lRetVal = HTTPGetMethod(&httpClient7);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Post Get failed.\n\r");
+    	IOT_INFO("HTTP Post Get failed.\n\r");
     }
-    //IOT_INFO("HTTP Get End:\n\r");
+    IOT_INFO("HTTP Get End:\n\r");
    HTTPCli_disconnect(&httpClient7);
 }
 
 }
 
     if(!strncmp(dexterpistring ,"belkin on", 9)){
-//IOT_INFO("Belkin Function Call...\n");
+IOT_INFO("Belkin Function Call...\n");
 long lRetVal = -1;
 strcpy(HOST_NAME,belkin_uri[0]);
 HOST_PORT = 49153;
@@ -2733,18 +2782,18 @@ HOST_PORT = 49153;
     }
 
 */
-    //IOT_INFO("\n\r");
-     //IOT_INFO("HTTP Post Begin:\n\r");
+    IOT_INFO("\n\r");
+     IOT_INFO("HTTP Post Begin:\n\r");
     lRetVal = HTTPPostMethodon(&httpClient8);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Post failed.\n\r");
+    	IOT_INFO("HTTP Post failed.\n\r");
     }
-    //IOT_INFO("HTTP Post End:\n\r");
+    IOT_INFO("HTTP Post End:\n\r");
 }
 
 if(!strncmp(dexterpistring ,"belkin off", 10)){
-//IOT_INFO("Belkin Function Call...\n");
+IOT_INFO("Belkin Function Call...\n");
 long lRetVal = -1;
 strcpy(HOST_NAME,belkin_uri[0]);
 HOST_PORT = 49153;
@@ -2764,25 +2813,25 @@ HOST_PORT = 49153;
     }
 
 */
-    //IOT_INFO("\n\r");
-     //IOT_INFO("HTTP Post Begin:\n\r");
+    IOT_INFO("\n\r");
+     IOT_INFO("HTTP Post Begin:\n\r");
     lRetVal = HTTPPostMethod(&httpClient9);
     if(lRetVal < 0)
     {
-    	//IOT_INFO("HTTP Post failed.\n\r");
+    	IOT_INFO("HTTP Post failed.\n\r");
     }
-    //IOT_INFO("HTTP Post End:\n\r");
+    IOT_INFO("HTTP Post End:\n\r");
 }
 
 if (!strncmp(dexterpistring , "gpio all on", 11)){
-    //IOT_INFO("\n GPIO OFF using COPY..  \n");
+    IOT_INFO("\n GPIO OFF using COPY..  \n");
     GPIOPinWrite(GPIOA1_BASE, 0x10, 0x10);
     GPIOPinWrite(GPIOA1_BASE, 0x8, 0x8);
     GPIOPinWrite(GPIOA1_BASE, 0x80, 0x80);
     GPIOPinWrite(GPIOA3_BASE, 0x10, 0x10);
 }
 if (!strncmp(dexterpistring , "gpio all off", 12)){
-    //IOT_INFO("\n GPIO OFF using COPY..  \n");
+    IOT_INFO("\n GPIO OFF using COPY..  \n");
     GPIOPinWrite(GPIOA1_BASE, 0x10, 0);
     GPIOPinWrite(GPIOA1_BASE, 0x8, 0);
     GPIOPinWrite(GPIOA1_BASE, 0x80, 0);
@@ -2801,10 +2850,10 @@ updateotavariable = 1;
 
 	sl_extLib_OtaGet(pvOtaApp,EXTLIB_OTA_GET_OPT_IS_PENDING_COMMIT,
                          &OptionLen,&OptionVal);
-	//IOT_INFO("EXTLIB_OTA_GET_OPT_IS_PENDING_COMMIT? %d \n\r",OptionVal);
+	IOT_INFO("EXTLIB_OTA_GET_OPT_IS_PENDING_COMMIT? %d \n\r",OptionVal);
 	if(OptionVal == true)
 		{
-		//IOT_INFO("ota: pending comit & wlan ok ==> perform comit \n\r");
+		IOT_INFO("ota: pending comit & wlan ok ==> perform comit \n\r");
 		SetCommitInt = OTA_ACTION_IMAGE_COMMITED;
 		sl_extLib_OtaSet(pvOtaApp, EXTLIB_OTA_SET_OPT_IMAGE_COMMIT,
                              sizeof(int), (_u8 *)&SetCommitInt);
@@ -2812,51 +2861,51 @@ updateotavariable = 1;
 		}
 	else
 		{
-		//IOT_INFO("starting ota\n\r");
+		IOT_INFO("starting ota\n\r");
 		lRetVal = 0;
 		while(!lRetVal)
 			{
 			lRetVal = sl_extLib_OtaRun(pvOtaApp);
 			}
-		//IOT_INFO("ota run = %d\n\r", lRetVal);
+		IOT_INFO("ota run = %d\n\r", lRetVal);
 		if(lRetVal < 0)
 			{
-			//IOT_INFO("ota: error with ota server\n\r");
+			IOT_INFO("ota: error with ota server\n\r");
 			}
 		else if (lRetVal == RUN_STAT_NO_UPDATES)
 			{
-			//IOT_INFO("ota: run stat no updates\n\r");
+			IOT_INFO("ota: run stat no updates\n\r");
 			}
 		else if ((lRetVal & RUN_STAT_DOWNLOAD_DONE))
 			{
 			lRetVal = sl_extLib_OtaSet(pvOtaApp, EXTLIB_OTA_SET_OPT_IMAGE_TEST,
                                     sizeof(int), (_u8 *)&SetCommitInt);
-			//IOT_INFO("ota: new image download complete\n\r");
-			//IOT_INFO("rebooting...");
+			IOT_INFO("ota: new image download complete\n\r");
+			IOT_INFO("rebooting...");
 			RebootMCU();
 			}
 		}/*
-//IOT_INFO("starting ota\n\r");
+IOT_INFO("starting ota\n\r");
 		lRetVal = 0;
 		while(!lRetVal)
 			{
 			lRetVal = sl_extLib_OtaRun(pvOtaApp);
 			}
-		//IOT_INFO("ota run = %d\n\r", lRetVal);
+		IOT_INFO("ota run = %d\n\r", lRetVal);
 		if(lRetVal < 0)
 			{
-			//IOT_INFO("ota: error with ota server\n\r");
+			IOT_INFO("ota: error with ota server\n\r");
 			}
 		else if (lRetVal == RUN_STAT_NO_UPDATES)
 			{
-			//IOT_INFO("ota: run stat no updates\n\r");
+			IOT_INFO("ota: run stat no updates\n\r");
 			}
 		else if ((lRetVal & RUN_STAT_DOWNLOAD_DONE))
 			{
 			lRetVal = sl_extLib_OtaSet(pvOtaApp, EXTLIB_OTA_SET_OPT_IMAGE_TEST,
                                     sizeof(int), (_u8 *)&SetCommitInt);
-			//IOT_INFO("ota: new image download complete\n\r");
-			//IOT_INFO("rebooting...");
+			IOT_INFO("ota: new image download complete\n\r");
+			IOT_INFO("rebooting...");
 			RebootMCU();
 			}*/
 }
@@ -2913,7 +2962,7 @@ if( 0 == sl_FsOpen((unsigned char *)IMG_BOOT_INFO, FS_MODE_OPEN_READ,
 //currButton = GPIO_read(Board_BUTTON0);
         //if (currButton == 1) {
 if (!GPIOPinRead(GPIOA2_BASE, 0x2)) {
-		//System_printf("16\n");
+		System_printf("16\n");
             //smartConfigFxn();
 	    sl_WlanProfileDel(WLAN_DEL_ALL_PROFILES);
             RebootMCU();
@@ -2942,7 +2991,7 @@ void disconnectCallbackHandler(AWS_IoT_Client *pClient, void *data)
 
     AWS_IoT_Client *client = (AWS_IoT_Client *)data;
     if (aws_iot_is_autoreconnect_enabled(client)) {
-        //IOT_INFO("Auto Reconnect is enabled, Reconnecting attempt will start now");
+        IOT_INFO("Auto Reconnect is enabled, Reconnecting attempt will start now");
     }
     else {
         IOT_WARN("Auto Reconnect not enabled. Starting manual reconnect...");
@@ -2963,12 +3012,12 @@ void runAWSClient(void)
 int awsloop = 0;
 //deviceidread();
 //philiphsidread();
-//IOT_INFO(".....The thing name is %s...\n",AWS_IOT_MY_THING_NAME);
+IOT_INFO(".....The thing name is %s...\n",AWS_IOT_MY_THING_NAME);
 for(awsloop = 0;awsloop <= 1000;awsloop++){
 myawstask_status = false;
 
 while(!myawstask_status){
-//IOT_INFO("\n....RUNNING....AWS_IOT...\n");
+IOT_INFO("\n....RUNNING....AWS_IOT...\n");
     IoT_Error_t rc = SUCCESS;
     int32_t i = 0;
     bool infinitePublishFlag = true;
@@ -2985,7 +3034,8 @@ while(!myawstask_status){
     IoT_Publish_Message_Params paramsQOS0;
     IoT_Publish_Message_Params paramsQOS1;
 
-    //IOT_INFO("\nAWS IoT SDK Version %d.%d.%d-%s\n", VERSION_MAJOR, VERSION_MINOR,VERSION_PATCH, VERSION_TAG);
+    IOT_INFO("\nAWS IoT SDK Version %d.%d.%d-%s\n", VERSION_MAJOR, VERSION_MINOR,
+            VERSION_PATCH, VERSION_TAG);
 
 
     mqttInitParams.enableAutoReconnect = false; // We enable this later below
@@ -3016,10 +3066,10 @@ while(!myawstask_status){
     connectParams.MQTTVersion = MQTT_3_1_1;
     connectParams.pClientID = AWS_IOT_MQTT_CLIENT_ID;
     connectParams.clientIDLen = (uint16_t)strlen(AWS_IOT_MQTT_CLIENT_ID);
-    //IOT_INFO(".....CLIENT ID IS ...%s...\n",AWS_IOT_MQTT_CLIENT_ID);
+    IOT_INFO(".....CLIENT ID IS ...%s...\n",AWS_IOT_MQTT_CLIENT_ID);
     connectParams.isWillMsgPresent = false;
 
-    //IOT_INFO("Connecting...");
+    IOT_INFO("Connecting...");
     rc = aws_iot_mqtt_connect(&client, &connectParams);
     if (SUCCESS != rc) {
         IOT_ERROR("Error(%d) connecting to %s:%d", rc, mqttInitParams.pHostURL,
@@ -3037,7 +3087,7 @@ while(!myawstask_status){
         IOT_ERROR("Unable to set Auto Reconnect to true - %d", rc);
     }
 
-    //IOT_INFO("Subscribing...");
+    IOT_INFO("Subscribing...");
     rc = aws_iot_mqtt_subscribe(&client, topicName, topicNameLen, QOS0,
             MQTTcallbackHandler, NULL);
     if (SUCCESS != rc) {
@@ -3080,7 +3130,7 @@ while(!myawstask_status){
 //	}
 
         GPIOPinWrite(GPIOA2_BASE, 0x40, 0x40);
-        //IOT_INFO("-->sleep");
+        IOT_INFO("-->sleep");
         Task_sleep(1000);
         if (publishCount > 0) {
            publishCount--;
@@ -3156,7 +3206,7 @@ while(!myawstask_status){
 	if(devicestate==1)
 	{
 		///////added for sending to app////////
-			//IOT_INFO("dexter pi is connected to cloud\n");
+			IOT_INFO("dexter pi is connected to cloud\n");
 			/*char *pubtopicNames = "sdkTest/sub";//"enddevices/status";
     			int pubtopicNamesLen = strlen(pubtopicNames);
 			
@@ -3195,7 +3245,7 @@ while(!myawstask_status){
 
 	if(enddevicestatus==1)
 	{
-		//IOT_INFO("discover is called\n");
+		IOT_INFO("discover is called\n");
 		char *pubtopicNames = "enddeviceipdetails";//"enddevices/status";
     		int pubtopicNamesLen = strlen(pubtopicNames);
 		
@@ -3207,21 +3257,21 @@ while(!myawstask_status){
 		else if(philipsidstatus==1)
 		{
 			/*///////added for sending to app////////
-			//IOT_INFO("philips config  is called\n");
+			IOT_INFO("philips config  is called\n");
 			char *pubtopicNames = "sdkTest/sub";//"enddevices/status";
     			int pubtopicNamesLen = strlen(pubtopicNames);
 			/*if(i/22==0){
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);			
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);			
 			}*//*
 			if(i==0)
 			{
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);	
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);	
 			}*//*
 
 			sprintf(cPayload, "please press link button on hue bridge");
@@ -3245,21 +3295,21 @@ while(!myawstask_status){
 		else if(philipsidstatus==2)
 		{
 			/*///////////added for app////////////
-			//IOT_INFO("philips config  is called\n");
+			IOT_INFO("philips config  is called\n");
 			char *pubtopicNames = "sdkTest/sub";//"enddevices/status";
     			int pubtopicNamesLen = strlen(pubtopicNames);
 			/*if(i/22==0){
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);			
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);			
 			}*//*
 			if(i==0)
 			{
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);	
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);	
 			}*//*
 
 			sprintf(cPayload, "pl 1");
@@ -3290,14 +3340,14 @@ while(!myawstask_status){
 		{
 			sprintf(cPayload,"discover");
 		}
-		//IOT_INFO("cpayload---%s----",cPayload);
+		IOT_INFO("cpayload---%s----",cPayload);
         	/* Recalculate string len to avoid truncation in subscribe callback */
         	paramsQOS1.payloadLen = strlen(cPayload);
         	do {
 			
             		rc = aws_iot_mqtt_publish(&client, pubtopicNames, pubtopicNamesLen,
                     	&paramsQOS1);
-			//IOT_INFO("discover is called to publish\n");
+			IOT_INFO("discover is called to publish\n");
             		if (publishCount > 0) {
                 		publishCount--;
             		}
@@ -3310,22 +3360,22 @@ while(!myawstask_status){
 		if(philipsidstatus==1)
 		{
 			///////added for sending to app////////
-			//IOT_INFO("philips config  is called\n");
+			IOT_INFO("philips config  is called\n");
 			char *pubtopicNames; // = "sdkTest/sub";//"enddevices/status";
 			pubtopicNames = pubtopName;
     			int pubtopicNamesLen = strlen(pubtopicNames);
 			/*if(i/22==0){
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);			
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);			
 			}*//*
 			if(i==0)
 			{
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);	
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);	
 			}*/
 
 			sprintf(cPayload, "please press link button on hue bridge");
@@ -3344,22 +3394,22 @@ while(!myawstask_status){
 		else if(philipsidstatus==2)
 		{
 			///////////added for app////////////
-			//IOT_INFO("philips config  is called\n");
+			IOT_INFO("philips config  is called\n");
 			char *pubtopicNames; // = "sdkTest/sub";//"enddevices/status";
 			pubtopicNames = pubtopName;
     			int pubtopicNamesLen = strlen(pubtopicNames);
 			/*if(i/22==0){
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);			
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);			
 			}*//*
 			if(i==0)
 			{
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);	
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);	
 			}*/
 
 			sprintf(cPayload, "pl 1");
@@ -3380,21 +3430,21 @@ while(!myawstask_status){
 	}
 	/*if(philipsidstatus==1)
         {
-		//IOT_INFO("philips config  is called\n");
+		IOT_INFO("philips config  is called\n");
 			char *pubtopicNames = "sdkTest/sub";//"enddevices/status";
     			int pubtopicNamesLen = strlen(pubtopicNames);
 			/*if(i/22==0){
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);			
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);			
 			}*//*
 			if(i==0)
 			{
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);	
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);	
 			}*//*
 
 			sprintf(cPayload, "please press link button on hue bridge");
@@ -3415,21 +3465,21 @@ while(!myawstask_status){
 
 	if(philipsidstatus==2)
         {
-		//IOT_INFO("philips config  is called\n");
+		IOT_INFO("philips config  is called\n");
 			char *pubtopicNames = "sdkTest/sub";//"enddevices/status";
     			int pubtopicNamesLen = strlen(pubtopicNames);
 			/*if(i/22==0){
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);			
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);			
 			}*//*
 			if(i==0)
 			{
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);	
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);	
 			}*//*
 
 			sprintf(cPayload, "pl 1");
@@ -3455,7 +3505,7 @@ while(!myawstask_status){
 //philipssinglebulbget
 		if(philipssinglebulbget==1)
 		{
-			//IOT_INFO("philips single bulb get  is called\n");
+			IOT_INFO("philips single bulb get  is called\n");
 			char *pubtopicNames = "philipsbulbsdetails";
 			int pubtopicNamesLen = strlen(pubtopicNames);
 
@@ -3477,21 +3527,21 @@ while(!myawstask_status){
 
 		if(philipsgetstatus==1)
 		{
-			//IOT_INFO("philips get  is called\n");
+			IOT_INFO("philips get  is called\n");
 			char *pubtopicNames = "philipsbulbsdetails";//"enddevices/status";
     			int pubtopicNamesLen = strlen(pubtopicNames);
 			/*if(i/22==0){
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);			
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);			
 			}*//*
 			if(i==0)
 			{
 				id_len=sizeof(keyString);
-				//IOT_INFO("philips get data length: %d\n",id_len);
+				IOT_INFO("philips get data length: %d\n",id_len);
 				strncpy(philipsgetdata,keyString,id_len);
-				//IOT_INFO("philips get data : %s---\n", philipsgetdata);	
+				IOT_INFO("philips get data : %s---\n", philipsgetdata);	
 			}*/
 
 			sprintf(cPayload, "{ \n \"philipsbulbId\" : \"%s\",\n\"philipsbulbStatus\" : %s,\n\"dexterpi_id\" : \"%s\",\n\"philipsip\" : \"%s\"\n}",philipsbulbid,philipsbulbstatus,DeviceID,philips_uri);
@@ -3526,7 +3576,7 @@ while(!myawstask_status){
 	//runAWSClient();
     }
     else {
-        //IOT_INFO("Publish done\n");
+        IOT_INFO("Publish done\n");
     }
 }}
 if(awsloop >= 1000){

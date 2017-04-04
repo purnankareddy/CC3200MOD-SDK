@@ -7,7 +7,7 @@
         <srcFile name="package/cfg/certflasher_pem4.c"/>
     </sources>
     <configscripts>
-        <srcFile name="/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file/samples/tirtos/certs/cc3200/certflasher.cfg"/>
+        <srcFile name="/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file_UART/samples/tirtos/certs/cc3200/certflasher.cfg"/>
     </configscripts>
     <makefiles>
         <srcFile name="package.mak" src="package.bld"/>
@@ -44,7 +44,7 @@
         isPartial="false"
         xCfgScript="package/cfg/certflasher_pem4.cfg"
         xCfgPrefix="package/cfg/certflasher_pem4"
-        cfgScript="/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file/samples/tirtos/certs/cc3200/certflasher.cfg"
+        cfgScript="/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file_UART/samples/tirtos/certs/cc3200/certflasher.cfg"
         cfgArgs="null"
         />
     </configurations>
@@ -56,7 +56,7 @@
         profile="release"
         xCfgScript="package/cfg/certflasher_pem4.cfg"
         xCfgPrefix="package/cfg/certflasher_pem4"
-        cfgScript="/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file/samples/tirtos/certs/cc3200/certflasher.cfg"
+        cfgScript="/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file_UART/samples/tirtos/certs/cc3200/certflasher.cfg"
         cfgArgs="null"
         />
     </executables>
