@@ -50,7 +50,7 @@
 #define LOG_SERVER_NAME                 "api-content.dropbox.com"
 #define OTA_SERVER_REST_FILES_PUT       "/1/files_put/auto/"
 //#define OTA_VENDOR_STRING               "Vid00_Pid00_Ver0600"
-#define OTA_VENDOR_STRING               "HiveyPIE_Ver005"
+#define OTA_VENDOR_STRING               "HiveyPIE_Ver007"
 
 
 
@@ -80,7 +80,7 @@
 
 #define APP_VER_MAJOR           0
 #define APP_VER_MINOR           0
-#define APP_VER_BUILD           5
+#define APP_VER_BUILD           6
 
 typedef struct
 {

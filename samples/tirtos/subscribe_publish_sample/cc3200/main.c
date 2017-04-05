@@ -121,7 +121,7 @@ void slTask(unsigned int arg0, unsigned int arg1)
 
     int update;
     update = updateota();
-    GPIOPinWrite(GPIOA3_BASE, 0x40, 0x40);
+    //GPIOPinWrite(GPIOA3_BASE, 0x40, 0x40);
     if(!update){
 
     Task_Params_init(&taskParams);
@@ -190,7 +190,8 @@ int main(int argc, char *argv[])
     Board_initWiFi();
 
     //GPIO_write(Board_LED0, Board_LED_ON);
-    GPIOPinWrite(GPIOA3_BASE, 0x40, 0x40);
+    //GPIOPinWrite(GPIOA3_BASE, 0x40, 0x40);
+    GPIOPinWrite(GPIOA3_BASE, 0x40, 0x0);
 
     Task_Params_init(&taskParams);
     taskParams.stackSize = 4096;//1024;

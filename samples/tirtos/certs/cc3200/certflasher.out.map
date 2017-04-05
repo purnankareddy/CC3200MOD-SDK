@@ -1,7 +1,7 @@
 ******************************************************************************
                   TI ARM Linker Unix v5.2.5                    
 ******************************************************************************
->> Linked Tue Apr  4 15:34:21 2017
+>> Linked Wed Apr  5 14:16:05 2017
 
 OUTPUT FILE NAME:   <certflasher.out>
 ENTRY POINT SYMBOL: "_c_int00"  address: 2000a911
@@ -605,8 +605,8 @@ section   page    origin      length       input sections
 
 .const     0    20012668    00001ac5     
                   20012668    00000675     certflasher.o (.const:.string:root_ca_pem)
-                  20012cdd    00000639     certflasher.o (.const:.string:client_private_key_pem)
-                  20013316    0000047d     certflasher.o (.const:.string:client_cert_pem)
+                  20012cdd    00000635     certflasher.o (.const:.string:client_private_key_pem)
+                  20013312    00000481     certflasher.o (.const:.string:client_cert_pem)
                   20013793    00000001     certflasher_pem4.oem4 (.const:ti_sysbios_knl_Clock_tickMode__C)
                   20013794    00000100     driverlib.a : pin.obj (.const:g_ulPinToPadMap)
                   20013894    000000a8                 : prcm.obj (.const:PRCM_PeriphRegsList)
@@ -1105,7 +1105,7 @@ ffffffff  binit
 20013a04  ca_cert_path                                               
 20004add  cc3200CertFlashTask                                        
 20013a11  client_cert_path                                           
-20013316  client_cert_pem                                            
+20013312  client_cert_pem                                            
 20013a20  client_key_path                                            
 20012cdd  client_private_key_pem                                     
 20006b81  convertPemToDer                                            
@@ -2197,7 +2197,7 @@ address   name
 20012660  spiCC3200DMAscratchBuf                                     
 20012668  root_ca_pem                                                
 20012cdd  client_private_key_pem                                     
-20013316  client_cert_pem                                            
+20013312  client_cert_pem                                            
 20013793  ti_sysbios_knl_Clock_tickMode__C                           
 2001393c  spiCC3200DMAHWAttrs                                        
 200139a4  SPICC3200DMA_fxnTable                                      

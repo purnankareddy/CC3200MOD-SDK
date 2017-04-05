@@ -2285,6 +2285,7 @@ long lRetVal = -1;
 		if(lRetVal < 0)
 			{
 			IOT_INFO("ota: error with ota server\n\r");
+			return 0;
 			}
 		else if (lRetVal == RUN_STAT_NO_UPDATES)
 			{
@@ -2992,6 +2993,8 @@ void disconnectCallbackHandler(AWS_IoT_Client *pClient, void *data)
     AWS_IoT_Client *client = (AWS_IoT_Client *)data;
     if (aws_iot_is_autoreconnect_enabled(client)) {
         IOT_INFO("Auto Reconnect is enabled, Reconnecting attempt will start now");
+        RebootMCU();
+	//myawstask_status = true;
     }
     else {
         IOT_WARN("Auto Reconnect not enabled. Starting manual reconnect...");

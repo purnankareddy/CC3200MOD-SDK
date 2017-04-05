@@ -309,6 +309,7 @@ System_printf("CC3200 has Called from main.c...\n");
     GPIO_write(Board_LED0, Board_LED_OFF);
     GPIO_write(Board_LED1, Board_LED_OFF);
     GPIO_write(Board_LED2, Board_LED_OFF);
+    GPIOPinWrite(GPIOA3_BASE, 0x40, 0x40);
 
     /* Open WiFi driver */
     WiFi_Params_init(&wifiParams);
@@ -351,7 +352,14 @@ System_printf("15\n");
         currButton = GPIOPinRead(GPIOA2_BASE, 0x2); 
     //    if (((currButton == 0) && (prevButton != 0)) || ++smarttime == 1200) {
         if ((currButton == 0) && (prevButton != 0)) {
-		System_printf("16\n");	
+		System_printf("16\n");
+                GPIOPinWrite(GPIOA3_BASE, 0x40, 0x0);
+	        Task_sleep(50);
+		GPIOPinWrite(GPIOA3_BASE, 0x40, 0x40);
+	        Task_sleep(50);
+		GPIOPinWrite(GPIOA3_BASE, 0x40, 0x0);
+	        Task_sleep(50);
+		GPIOPinWrite(GPIOA3_BASE, 0x40, 0x40);
             	smartConfigFxn();
         }
         prevButton = currButton;
