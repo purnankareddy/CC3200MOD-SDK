@@ -2322,6 +2322,11 @@ IOT_INFO(". : %s\n",dexterpistring);
     strncat(string, " ", size+1);
     //IOT_INFO("vinay----%s------\n",string);
 if(!strncmp(dexterpistring ,"gpio", 4)){
+
+	  if(11 >= size >= 50){
+		continue;
+	  }	
+
  const char s[2] = " ";
    char *token;
    
@@ -2344,6 +2349,80 @@ if(!strncmp(dexterpistring ,"gpio", 4)){
 	//if(word[dummy] == "from"){
          strcpy(userid,word[4]);//}}
    IOT_INFO("userid---%s-----\n",userid);
+
+ if(!strncmp(dexterpistring ,"gpio 1 on", 9)){
+	GPIOPinWrite(GPIOA1_BASE, 0x10, 0x10);
+	PWR1=1;
+	ch = 1;
+	status=1;//variable=0;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+
+ }
+
+ if(!strncmp(dexterpistring ,"gpio 2 on", 9)){
+	GPIOPinWrite(GPIOA1_BASE, 0x8, 0x8);
+	PWR2=1;
+	ch =2;//variable=0;
+	status = 1;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+}
+
+ if(!strncmp(dexterpistring ,"gpio 3 on", 9)){
+        GPIOPinWrite(GPIOA1_BASE, 0x80, 0x80);
+        PWR3=1;
+	ch =3;//variable=0;
+	status = 1;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ }
+
+ if(!strncmp(dexterpistring ,"gpio 4 on", 9)){
+        GPIOPinWrite(GPIOA3_BASE, 0x10, 0x10);
+        PWR4=1;
+	ch=4;//variable=0;
+	status = 1;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ } 
+
+ if(!strncmp(dexterpistring ,"gpio 1 off", 10)){
+	GPIOPinWrite(GPIOA1_BASE, 0x10, 0x0);
+        PWR1=0;
+        ch =1;//variable=1;
+	status = 0;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ }
+
+ if(!strncmp(dexterpistring ,"gpio 2 off", 10)){
+	GPIOPinWrite(GPIOA1_BASE, 0x8, 0x0);
+        PWR2=0;
+        ch=2;//variable=1;
+	status = 0;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ }
+
+ if(!strncmp(dexterpistring ,"gpio 3 off", 10)){
+        GPIOPinWrite(GPIOA1_BASE, 0x80, 0x0);
+        PWR3=0;
+        ch=3;//variable=1;
+	status = 0;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ }
+
+ if(!strncmp(dexterpistring ,"gpio 4 off", 10)){
+        GPIOPinWrite(GPIOA3_BASE, 0x10, 0x0);
+        PWR4=0;
+        ch=4;//variable=1;
+	status = 0;
+	sstartNTP();
+	IOT_INFO("----current time = %s-----",timeslap);
+ }
+
 }
 
 if(!strncmp(dexterpistring ,"philips", 7)){
@@ -2499,7 +2578,7 @@ HOST_PORT = 49153;
     HTTPCli_disconnect(&httpClient2);
     enddevicestatus=1;
 }
-
+/*
  if(!strncmp(dexterpistring ,"gpio 1 on", 9)){
 	GPIOPinWrite(GPIOA1_BASE, 0x10, 0x10);
 	PWR1=1;
@@ -2572,6 +2651,7 @@ HOST_PORT = 49153;
 	sstartNTP();
 	IOT_INFO("----current time = %s-----",timeslap);
  } 
+*/
  if(!strncmp(dexterpistring ,"discover", 8)){
 	IOT_INFO("----Discover-----");
 	//sri_recev();	
@@ -3167,10 +3247,10 @@ IOT_INFO("\n....RUNNING....AWS_IOT...\n");
 	                socket=2;PWR2=0;
 	        //sprintf(cPayload, "{ \n \"Phantom Power Decteted at Channel-2 and socket-2\"\n}");
 	        }else if(Phantom_var3==1){
-	                socket=3;PWR2=0;
+	                socket=3;PWR3=0;
 	        //sprintf(cPayload, "{ \n \"Phantom Power Decteted at Channel-3 and socket-3\"\n}");
 	        }else if(Phantom_var4==1){
-	                socket=4;PWR2=0;
+	                socket=4;PWR4=0;
 	        //sprintf(cPayload, "{ \n \"Phantom Power Decteted at Channel-4 and socket-4\"\n}");
 	        }
 	sprintf(cPayload, "{ \n \"Dynamic_Power_socketId\" : \"%d\",\n\"status\" : \"%d\",\n\"power\" : \"%f\",\n\"dexterpi_id\" : \"%s\",\n\"userId\" : \"%s\"\n}",socket,status,power(ch),DeviceID,userid);
