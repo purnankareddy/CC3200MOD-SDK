@@ -9,7 +9,7 @@
  */
 
 
--l"/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file_UART/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample/package/cfg/subscribe_publish_sample_pem4.oem4"
+-l"/home/mdubuntu/Downloads/CC3200MOD-SDK/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample/package/cfg/subscribe_publish_sample_pem4.oem4"
 -l"/home/mdubuntu/ti/tirtos_cc32xx_2_16_01_14/products/ns_1_11_00_10/packages/ti/net/sntp/lib/sntp_sl.aem4"
 -l"/home/mdubuntu/ti/tirtos_cc32xx_2_16_01_14/products/ns_1_11_00_10/packages/ti/net/lib/network_sl.aem4"
 -l"/home/mdubuntu/ti/tirtos_cc32xx_2_16_01_14/products/tidrivers_cc32xx_2_16_01_13/packages/ti/mw/wifi/cc3x00/lib/cc3x00_host_driver.aem4"
@@ -18,7 +18,7 @@
 -l"/home/mdubuntu/ti/tirtos_cc32xx_2_16_01_14/products/tidrivers_cc32xx_2_16_01_13/packages/ti/drivers/lib/power_cc3200_tirtos.aem4"
 -l"/home/mdubuntu/ti/tirtos_cc32xx_2_16_01_14/products/tidrivers_cc32xx_2_16_01_13/packages/ti/mw/fatfs/lib/release/ti.mw.fatfs.aem4"
 -l"/home/mdubuntu/ti/tirtos_cc32xx_2_16_01_14/products/tidrivers_cc32xx_2_16_01_13/packages/ti/drivers/ports/lib/tirtosport.aem4"
--l"/home/mdubuntu/Downloads/aws-iot-device-sdk-embedded-c-hanged-CC3200MOD_Test_with_install_file_UART/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample/package/cfg/subscribe_publish_sample_pem4.src/sysbios/sysbios.aem4"
+-l"/home/mdubuntu/Downloads/CC3200MOD-SDK/samples/tirtos/subscribe_publish_sample/cc3200/subscribe_publish_sample/package/cfg/subscribe_publish_sample_pem4.src/sysbios/sysbios.aem4"
 -l"/home/mdubuntu/ti/tirtos_cc32xx_2_16_01_14/products/bios_6_45_02_31/packages/ti/targets/arm/rtsarm/lib/ti.targets.arm.rtsarm.aem4"
 -l"/home/mdubuntu/ti/tirtos_cc32xx_2_16_01_14/products/bios_6_45_02_31/packages/ti/targets/arm/rtsarm/lib/boot.aem4"
 -l"/home/mdubuntu/ti/tirtos_cc32xx_2_16_01_14/products/bios_6_45_02_31/packages/ti/targets/arm/rtsarm/lib/auto_init.aem4"

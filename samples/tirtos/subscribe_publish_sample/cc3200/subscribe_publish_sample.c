@@ -179,7 +179,7 @@ char philips_request_uri[100];
 int HOST_PORT=0;
 int philipsgetbulbsstatus = 0;
 int updateotavariable = 0;
-
+int status=0;
 char dexterpistring[100];
 int enddevicestatus=0;//when new ip of philips or belkin discovered it is high to send mqtt message of all ips
 static int philipsidstatus=0;//if it is 0 that is there is no philips user id. if it is 1 means we have to press link button. if it is 2 we have philips user id
@@ -705,6 +705,7 @@ while(1)
 	        if((max1/4) >= Power1[i]){
 	                Phantom_var1=1;
 	                Phantom_buff=1;
+			status = 1;
 			i1--;
 	                }else
 	                Phantom_var1=0;
@@ -722,6 +723,7 @@ while(1)
 	        if((max2/4) >= Power2[i]){
 	                Phantom_var2=1;
 	                Phantom_buff=1;
+			status = 1;
 			j1--;
 	                }else
 	                Phantom_var2=0;
@@ -739,6 +741,7 @@ while(1)
 	        if((max3/4) >= Power3[i]){
 	                Phantom_var3=1;
 	                Phantom_buff=1;
+			status = 1;
 			k1--;
 	                }else
 	                Phantom_var3=0;
@@ -756,6 +759,7 @@ while(1)
 	        if((max4/4) >= Power4[i]){
 	                Phantom_var4=1;
 	                Phantom_buff=1;
+			status = 1;
 			l1--;
 	                }else
 	                Phantom_var4=0;
@@ -2168,7 +2172,7 @@ uint32_t publishCount = 0;
 unsigned int  uiChannel;
 float pw=0;
 int ch=0;
-int status=0;
+
 
 
 float power(int ch_no){
@@ -2323,7 +2327,7 @@ IOT_INFO(". : %s\n",dexterpistring);
     //IOT_INFO("vinay----%s------\n",string);
 if(!strncmp(dexterpistring ,"gpio", 4)){
 
-	  if(11 >= size >= 50){
+	  if((size >= 50) || (size <= 16)){
 		continue;
 	  }	
 
@@ -3253,7 +3257,7 @@ IOT_INFO("\n....RUNNING....AWS_IOT...\n");
 	                socket=4;PWR4=0;
 	        //sprintf(cPayload, "{ \n \"Phantom Power Decteted at Channel-4 and socket-4\"\n}");
 	        }
-	sprintf(cPayload, "{ \n \"Dynamic_Power_socketId\" : \"%d\",\n\"status\" : \"%d\",\n\"power\" : \"%f\",\n\"dexterpi_id\" : \"%s\",\n\"userId\" : \"%s\"\n}",socket,status,power(ch),DeviceID,userid);
+	sprintf(cPayload, "{ \n \"Dynamic_Power_socketId\" : \"%d\",\n\"status\" : \"%d\",\n\"power\" : \"%f\",\n\"dexterpi_id\" : \"%s\",\n\"userId\" : \"%s\"\n}",socket,status,power(socket),DeviceID,userid);
         /* Recalculate string len to avoid truncation in subscribe callback */
         paramsQOS1.payloadLen = strlen(cPayload);
         do {
